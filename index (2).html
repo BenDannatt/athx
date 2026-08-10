@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14161B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ATHX · 12-Week Programme</title>
+<style>
+:root{
+  --ink:#14161B; --ink2:#1B1E27; --surf:#232733; --surf2:#2B303D;
+  --line:#333846; --bone:#F2EEE3; --mut:#8A8F9C; --mut2:#5D6373;
+  --strength:#F0533A; --engine:#24C3B6; --metcon:#F5B23E; --rest:#6B7280;
+  --ember:#F0533A;
+  --ok:#3DD68C;
+  --r:14px; --r2:10px;
+  --mono:ui-monospace,"SF Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ink);color:var(--bone);font-family:var(--sans);
+  font-size:15px;line-height:1.45;
+  padding:0 0 96px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.01em}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+input{font-family:var(--mono)}
+
+/* ---------- top scoreboard ---------- */
+.board{position:sticky;top:0;z-index:40;background:linear-gradient(180deg,var(--ink) 70%,rgba(20,22,27,.0));
+  padding-top:max(10px,env(safe-area-inset-top))}
+.board-inner{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r);
+  padding:12px 14px;margin-top:6px}
+.board-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.brand{font-size:13px;font-weight:900;letter-spacing:.22em;color:var(--bone)}
+.brand small{color:var(--ember)}
+.block-tag{font-size:10px;letter-spacing:.14em;color:var(--mut);text-transform:uppercase}
+.count-row{display:flex;align-items:flex-end;gap:14px;margin-top:8px}
+.count{font-family:var(--mono);font-weight:800;font-size:34px;line-height:.9;letter-spacing:-.02em}
+.count .u{font-size:13px;color:var(--mut);font-weight:600;margin-left:2px}
+.count-lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:3px}
+.count-meta{margin-left:auto;text-align:right}
+.count-meta .wk{font-family:var(--mono);font-size:20px;font-weight:800}
+.count-meta .wk b{color:var(--ember)}
+.count-meta .dt{font-size:10px;color:var(--mut);letter-spacing:.04em}
+.count-meta button{font-size:10px;color:var(--mut);text-decoration:underline;letter-spacing:.04em}
+.progressbar{height:4px;border-radius:3px;background:var(--surf);margin-top:11px;overflow:hidden}
+.progressbar>span{display:block;height:100%;background:linear-gradient(90deg,var(--strength),var(--metcon),var(--engine));border-radius:3px;transition:width .4s}
+
+/* ---------- week chips ---------- */
+.weeks{display:flex;gap:7px;overflow-x:auto;padding:14px 0 4px;scrollbar-width:none}
+.weeks::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;min-width:42px;height:42px;border-radius:11px;background:var(--surf);
+  border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:700;font-size:15px;color:var(--mut);transition:.15s}
+.chip small{font-size:8px;letter-spacing:.06em;color:var(--mut2);text-transform:uppercase;line-height:1}
+.chip.on{background:var(--bone);color:var(--ink);border-color:var(--bone)}
+.chip.on small{color:var(--ink)}
+.chip.done{color:var(--ok);border-color:#2c4a3d}
+
+/* ---------- day tabs ---------- */
+.days{display:flex;gap:6px;overflow-x:auto;padding:6px 0 2px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.daytab{flex:0 0 auto;padding:8px 12px;border-radius:10px;background:var(--surf);border:1px solid var(--line);
+  font-size:12px;font-weight:700;color:var(--mut);display:flex;align-items:center;gap:7px;letter-spacing:.02em}
+.daytab .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.daytab.on{background:var(--surf2);color:var(--bone);border-color:var(--mut2)}
+.daytab .tick{color:var(--ok);font-size:11px}
+
+/* ---------- session ---------- */
+.sess-head{margin:18px 0 6px;display:flex;align-items:center;gap:10px}
+.zone-badge{font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
+  padding:5px 9px;border-radius:7px;color:var(--ink)}
+.sess-title{font-size:20px;font-weight:800;line-height:1.1;margin-top:12px;margin-bottom:2px}
+.sess-sub{font-size:12px;color:var(--mut);margin-bottom:4px}
+
+.acc{border:1px solid var(--line);border-radius:var(--r2);margin:12px 0;overflow:hidden;background:var(--ink2)}
+.acc>summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.acc>summary::-webkit-details-marker{display:none}
+.acc>summary .chev{transition:.2s;color:var(--mut2)}
+.acc[open]>summary .chev{transform:rotate(90deg)}
+.acc-body{padding:2px 14px 12px}
+.warm-item{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.warm-item:first-child{border-top:none}
+.warm-item .wn{font-weight:700;font-size:13px}
+.warm-item .wd{font-size:12px;color:var(--mut)}
+.warm-item .wm{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--engine);white-space:nowrap;flex:0 0 auto}
+
+/* ---------- movement card ---------- */
+.move{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:10px 0;position:relative;transition:.2s}
+.move.done{border-color:#2c4a3d;background:#161d1a}
+.move-top{display:flex;align-items:flex-start;gap:10px}
+.move-name{font-size:16px;font-weight:800;line-height:1.15;flex:1}
+.move-check{flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:2px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:16px;color:transparent;transition:.15s}
+.move.done .move-check{background:var(--ok);border-color:var(--ok);color:var(--ink)}
+.specs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.spec{font-family:var(--mono);font-size:12px;background:var(--surf);border-radius:7px;padding:4px 8px;color:var(--bone)}
+.spec b{color:var(--mut);font-weight:600;font-family:var(--sans);font-size:10px;letter-spacing:.06em;text-transform:uppercase;margin-right:5px}
+.spec.tgt{background:none;border:1px solid var(--ember);color:var(--ember)}
+.rest-btn{font-family:var(--mono);font-size:12px;background:var(--surf);border:1px solid var(--line);border-radius:7px;padding:4px 8px;color:var(--engine);display:inline-flex;gap:5px;align-items:center}
+.note{font-size:12.5px;color:var(--mut);margin-top:8px;line-height:1.4}
+.logrow{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;align-items:center}
+.loginput{width:64px;background:var(--surf);border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--bone);
+  font-size:14px;text-align:center}
+.loginput.wide{width:100%;text-align:left}
+.loginput::placeholder{color:var(--mut2)}
+.rpe{width:52px}
+.logrow .lbl{font-size:10px;color:var(--mut2);letter-spacing:.08em;text-transform:uppercase;width:100%;margin-bottom:-3px}
+
+/* ---------- rest timer ---------- */
+.timer{position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:60;
+  display:flex;justify-content:center;pointer-events:none;transition:.25s;transform:translateY(140%)}
+.timer.show{transform:translateY(0)}
+.timer-inner{pointer-events:auto;background:var(--surf2);border:1px solid var(--mut2);border-radius:14px;
+  padding:12px 16px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.timer-time{font-family:var(--mono);font-size:30px;font-weight:800;min-width:92px;text-align:center}
+.timer-time.done{color:var(--ember)}
+.timer button{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;border-radius:9px;background:var(--surf);border:1px solid var(--line)}
+.timer .add{color:var(--engine)}
+.timer .kill{color:var(--mut)}
+
+/* ---------- bottom nav ---------- */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--ink2);border-top:1px solid var(--line);
+  padding:8px 0 max(8px,env(safe-area-inset-bottom));display:flex;justify-content:center}
+.nav-inner{display:flex;gap:6px;width:100%;max-width:560px;padding:0 16px}
+.nav button{flex:1;padding:8px 4px;border-radius:11px;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:4px}
+.nav button .ic{font-size:17px}
+.nav button.on{color:var(--bone);background:var(--surf)}
+
+/* ---------- panels (progress/settings) ---------- */
+.panel{display:none}
+.panel.on{display:block}
+.card{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:12px 0}
+.card h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:12px}
+.field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.field:first-of-type{border-top:none}
+.field label{font-size:14px;font-weight:600}
+.field small{display:block;color:var(--mut);font-size:11px;font-weight:400;margin-top:1px}
+.field input{width:110px;background:var(--surf);border:1px solid var(--line);border-radius:8px;padding:9px;color:var(--bone);text-align:right;font-size:14px}
+.field input[type=date]{font-family:var(--sans);width:150px}
+.bigbtn{width:100%;background:var(--ember);color:#2a0a04;font-weight:900;letter-spacing:.05em;text-transform:uppercase;
+  padding:14px;border-radius:12px;font-size:14px;margin-top:4px}
+.bigbtn.ghost{background:none;border:1px solid var(--line);color:var(--bone)}
+.spark{display:flex;align-items:flex-end;gap:3px;height:60px;margin:8px 0}
+.spark .bar{flex:1;background:var(--engine);border-radius:2px 2px 0 0;min-height:3px;opacity:.85}
+.checkin-out{font-family:var(--mono);font-size:11.5px;white-space:pre-wrap;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--bone);max-height:280px;overflow:auto}
+.hint{font-size:12px;color:var(--mut);margin:6px 0}
+.toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--bone);color:var(--ink);
+  font-weight:800;font-size:13px;padding:10px 18px;border-radius:24px;z-index:80;transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin:20px 0 4px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- SCOREBOARD -->
+<div class="board"><div class="wrap"><div class="board-inner">
+  <div class="board-top">
+    <div class="brand">ATH<small>X</small> · 12-WEEK PROGRAMME</div>
+    <div class="block-tag" id="blockTag">Base Block</div>
+  </div>
+  <div class="count-row">
+    <div>
+      <div class="count-lbl">Days to comp floor</div>
+      <div class="count" id="countDays">—<span class="u">d</span></div>
+    </div>
+    <div class="count-meta">
+      <div class="wk">WK <b id="wkNow">1</b>/12</div>
+      <div class="dt" id="compDateLbl">set your date →</div>
+      <button id="editDate">edit comp date</button>
+    </div>
+  </div>
+  <div class="progressbar"><span id="progFill" style="width:0%"></span></div>
+</div></div></div>
+
+<div class="wrap">
+
+<!-- TRAIN PANEL -->
+<div class="panel on" id="panel-train">
+  <div class="weeks" id="weeks"></div>
+  <div class="days" id="days"></div>
+
+  <div class="sess-head" id="sessHead"></div>
+  <div class="sess-title" id="sessTitle"></div>
+  <div class="sess-sub" id="sessSub"></div>
+
+  <details class="acc" id="warmAcc">
+    <summary>Warm-up &amp; primer <span class="chev">›</span></summary>
+    <div class="acc-body" id="warmBody"></div>
+  </details>
+
+  <div id="moves"></div>
+
+  <details class="acc">
+    <summary>Cool-down &amp; mobility <span class="chev">›</span></summary>
+    <div class="acc-body" id="coolBody"></div>
+  </details>
+</div>
+
+<!-- PROGRESS PANEL -->
+<div class="panel" id="panel-progress">
+  <div class="eyebrow">Bodyweight</div>
+  <div class="card">
+    <div class="field" style="border:none">
+      <div><label>Log today's weight</label><small id="bwLast"></small></div>
+      <div style="display:flex;gap:8px"><input id="bwInput" type="number" inputmode="decimal" placeholder="kg"><button class="bigbtn" style="width:auto;margin:0;padding:9px 14px" id="bwSave">Add</button></div>
+    </div>
+    <div class="spark" id="bwSpark"></div>
+    <div class="hint" id="bwTrend">Target trajectory: 0.5–0.75 kg/week → ~109–111 kg by comp day. Continue to 100 kg after.</div>
+  </div>
+
+  <div class="eyebrow">Weekly check-in for your coach</div>
+  <div class="card">
+    <div class="hint">Pick a week, tap generate, then copy the text and paste it back to me. I'll retune your loads and paces from it.</div>
+    <div class="field" style="border:none">
+      <label for="ciWeek">Week</label>
+      <select id="ciWeek" class="field" style="width:90px;background:var(--surf);border:1px solid var(--line);border-radius:8px;padding:9px;color:var(--bone)"></select>
+    </div>
+    <button class="bigbtn" id="ciGen">Generate check-in</button>
+    <div class="checkin-out" id="ciOut" style="margin-top:12px;display:none"></div>
+    <button class="bigbtn ghost" id="ciCopy" style="display:none;margin-top:10px">Copy to clipboard</button>
+  </div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div class="panel" id="panel-settings">
+  <div class="eyebrow">Your numbers</div>
+  <div class="card">
+    <h3>Tested 1RM — loads recalc live</h3>
+    <div class="field"><div><label>Back Squat 1RM</label><small>kg</small></div><input id="rmSquat" type="number" inputmode="decimal"></div>
+    <div class="field"><div><label>Deadlift 1RM</label><small>kg</small></div><input id="rmDead" type="number" inputmode="decimal"></div>
+    <div class="field"><div><label>Strict Press 1RM</label><small>kg</small></div><input id="rmPress" type="number" inputmode="decimal"></div>
+    <div class="hint">After your Week 1 test, put the real numbers in here and every % target across all 12 weeks updates automatically.</div>
+  </div>
+  <div class="eyebrow">Event</div>
+  <div class="card">
+    <div class="field" style="border:none"><div><label>Comp date</label><small>drives the countdown</small></div><input id="setDate" type="date"></div>
+  </div>
+  <div class="eyebrow">Data</div>
+  <div class="card">
+    <div class="hint">Everything is saved on this device only. Add this page to your home screen to use it like an app.</div>
+    <button class="bigbtn ghost" id="resetBtn">Reset all logged data</button>
+  </div>
+  <div class="hint" style="text-align:center;margin-top:18px;color:var(--mut2)">Loads are estimates until you log your Week 1 test. Weight-cut guardrail: 0.5–0.75 kg/week. Check ferritin/B12/Vit D in Week 1.</div>
+</div>
+
+</div>
+
+<!-- REST TIMER -->
+<div class="timer" id="timer"><div class="timer-inner">
+  <button class="kill" id="tKill">✕</button>
+  <div class="timer-time" id="tTime">0:00</div>
+  <button class="add" id="tAdd">+30s</button>
+</div></div>
+
+<!-- BOTTOM NAV -->
+<div class="nav"><div class="nav-inner">
+  <button class="on" data-panel="train"><span class="ic">▦</span>Train</button>
+  <button data-panel="progress"><span class="ic">▲</span>Progress</button>
+  <button data-panel="settings"><span class="ic">⚙</span>Setup</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================ DATA ============================ */
+const DEF_RM = {squat:110, dead:150, press:70};
+const zoneColor = {strength:'var(--strength)',engine:'var(--engine)',metcon:'var(--metcon)',sim:'var(--metcon)',rest:'var(--rest)',test:'var(--strength)'};
+const zoneName  = {strength:'Strength',engine:'Engine',metcon:'MetCon X',sim:'Simulation',rest:'Rest',test:'Test'};
+
+// warm-up routines
+// warm-up routines
+// warm-up routines
+// warm-up routines
+// warm-up routines
+const WARM = {
+ general:[
+  ['Easy cardio (row/ski/bike)','Build to a light sweat','5 min'],
+  ['Foam roll','Quads, lats, calves, upper back','2 min'],
+  ["World's greatest stretch",'Open hips & T-spine','5/side'],
+  ['Leg swings','Front/back + side/side','10 ea'],
+  ['Band pull-aparts + dislocates','Shoulder prep','15 / 10'],
+ ],
+ strength:[
+  ['Goblet squat + glute bridge','Prime hips','2×10'],
+  ['Scap pull-ups + push-ups','Prime pull/press','2×10'],
+  ['Ramp-up sets','Progressive sets to working load — never skip','2–4'],
+ ],
+ run:[
+  ['Walk → easy jog','Ease in','2+3 min'],
+  ['A-skips + high knees','Open stride','2×20m'],
+  ['Strides','Build to ~90% smooth','3×20m'],
+ ],
+ erg:[
+  ['Easy build','Raise stroke rate','3 min'],
+  ['Pick-up bursts','20s hard / 40s easy','×3'],
+ ],
+};
+const COOL=[
+ ['Easy walk / spin','Bring HR down','3–5 min'],
+ ['Stretch: hips, hams, quads, calves','Calf/Achilles priority at bodyweight','30s ea'],
+ ['Stretch: lats, pecs, shoulders, biceps','After press, pull & arm work','30s ea'],
+ ['Diaphragmatic breathing','Down-regulate — helps sleep','2 min'],
+];
+const L=(lift,pct)=>({lift,pct});
+const m=(name,sets,reps,target,rest,note,log=true)=>({name,sets,reps,target,rest,note,log});
+
+const WEEKS=[
+{n:1,block:'Build',warmNote:'Upper/Lower/Engine hybrid. Week 1 sets baselines — but you train through it. Log your test numbers in Setup so loads auto-calc.',sessions:[
+  {day:'Mon',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat — build to a heavy 3 (record 3RM)','1','3RM','1 RIR — baseline','full','Sets your squat loads for the whole plan.'),
+     m('Back Squat back-off','3','5',L('squat',0.75),'3 min','Explosive up.'),
+     m('Front Squat','3','6','RPE 8','2 min','Upright torso — quads + clean carryover.'),
+     m('Romanian Deadlift','4','8','RPE 8','2 min','Long hamstrings, controlled eccentric.'),
+     m('Bulgarian split squat (DB)','3','10 ea','RPE 8','90s','Unilateral — direct ATHX lunge carryover.'),
+     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
+     m('Finisher: sandbag carry','3','40 m','50 kg','60s','Grip + conditioning touch.'),
+   ]},
+  {day:'Tue',label:'Upper · Press strength + chest',zone:'strength',warm:'strength',moves:[
+     m('Strict Press — build to a heavy 3 (record 3RM)','1','3RM','1 RIR — baseline','full','Sets your press loads. Glutes tight, no leg drive.'),
+     m('Strict Press back-off','3','5',L('press',0.75),'2-3 min',''),
+     m('Bench press','4','5','RPE 8, +load weekly','2-3 min','Chest strength anchor — arch, retract, control down.'),
+     m('Weighted pull-up','4','6-8','Add load','2 min','Vertical pull — lats & V-taper.'),
+     m('Pendlay row','4','8','RPE 8','90s','Horizontal pull — mid-back thickness.'),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+   ]},
+  {day:'Wed',label:'Engine · Run + Row + MetCon',zone:'engine',warm:'run',moves:[
+     m('Continuous tempo run','1','20 min','@5:30/km steady','—','No walking — you\'ve the base. Record how it feels.'),
+     m('Row intervals','5','500 m','@1:52-1:55','90s','Threshold, even splits.'),
+     m('MetCon movements: 4 rounds','4','see below','~85%','2 min/rd','Learn the RX shapes hard.'),
+     m('· GTOH 12 (20kg) / Sandbag 40m (50kg) / BJO 12 (24")','4','—','RX','—','Step down off the box.'),
+     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
+   ]},
+  {day:'Thu',label:'Lower · Deadlift + hypertrophy',zone:'strength',warm:'strength',moves:[
+     m('Deadlift — build to a heavy 5 (record 5RM)','1','5RM','1 RIR — baseline','full','Sets your DL loads. Then back-offs.'),
+     m('Deadlift back-off','3','5',L('dead',0.72),'3 min',''),
+     m('Barbell hip thrust','4','10','RPE 8','2 min','Glutes — lock out hard, 1s hold.'),
+     m('Leg press (or hack squat)','4','12','RPE 8','2 min','Quad hypertrophy — controlled, full ROM.'),
+     m('Walking lunge (DB)','3','12 ea','RPE 8','90s','Unilateral volume.'),
+     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
+     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
+   ]},
+  {day:'Fri',label:'Upper · Chest & arms',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
+     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
+     m('Chest: cable fly + weighted dip','4','15 / 10','RPE 8-9','75s','Superset — deep stretch then squeeze.'),
+     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
+     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
+   ]},
+  {day:'Sat',label:'Engine 2 · Long aerobic (run-biased)',zone:'engine',warm:'run',moves:[
+     m('Zone 2 aerobic','1','45 min','Run 25 / Row 12 / Ski 8','—','Your engine is the limiter — protect this session.'),
+     m('Chest & arm pump: incline DB press + cable fly + curl','3','12 / 15 / 12','RPE 8','60s','2nd weekly chest hit.'),
+     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+   ],opt:true}
+ ]},
+{n:2,block:'Build',warmNote:'Volume climbs. Chase small load PRs vs Week 1.',sessions:[
+  {day:'Mon',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','5','5',L('squat',0.78),'3 min','Core strength lift — brace, drive the floor away.'),
+     m('Front Squat','3','6','RPE 8','2 min','Upright torso — quads + clean carryover.'),
+     m('Romanian Deadlift','4','8','RPE 8','2 min','Long hamstrings, controlled eccentric.'),
+     m('Bulgarian split squat (DB)','3','10 ea','RPE 8','90s','Unilateral — direct ATHX lunge carryover.'),
+     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+     m('Finisher: sandbag carry','3','40 m','50 kg','60s','Grip + conditioning touch.'),
+   ]},
+  {day:'Tue',label:'Upper · Press strength + chest',zone:'strength',warm:'strength',moves:[
+     m('Strict Press','5','5',L('press',0.78),'2-3 min','Overhead strength — the ATHX lift.'),
+     m('Bench press','4','6','RPE 8, +load weekly','2-3 min','Chest strength anchor — arch, retract, control down.'),
+     m('Weighted pull-up','4','6-8','Add load','2 min','Vertical pull — lats & V-taper.'),
+     m('Pendlay row','4','8','RPE 8','90s','Horizontal pull — mid-back thickness.'),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
+   ]},
+  {day:'Wed',label:'Engine · Run VO2 + Row + MetCon',zone:'engine',warm:'run',moves:[
+     m('Run intervals','6','3 min / 90s jog','@4:45-4:55/km','incl.','Hard, repeatable, even efforts.'),
+     m('Row intervals','4','400 m','@1:50','75s',''),
+     m('MetCon X — full RX for time','1','25 min cap — RECORD','Race pace','—','First full benchmark. Pace the opening ski.'),
+     m('· Ski 45 / GTOH 30 / Sandbag 30m / BJO 30 / Lunge 30m / Burpee-BJ 30m / Ski 45','1','—','RX','—',''),
+     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
+   ]},
+  {day:'Thu',label:'Lower · Deadlift + hypertrophy',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','5',L('dead',0.75),'3 min','Heavy pull — the event\'s 5RM lift.'),
+     m('Barbell hip thrust','4','10','RPE 8','2 min','Glutes — lock out hard, 1s hold.'),
+     m('Leg press (or hack squat)','4','12','RPE 8','2 min','Quad hypertrophy — controlled, full ROM.'),
+     m('Walking lunge (DB)','3','12 ea','RPE 8','90s','Unilateral volume.'),
+     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
+     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
+   ]},
+  {day:'Fri',label:'Upper · Chest & arms',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
+     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
+     m('Chest: incline cable fly + deficit push-up','4','15 / AMRAP','RPE 9','75s','Stretch-focused chest burnout.'),
+     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
+     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
+   ]},
+  {day:'Sat',label:'Engine 2 · Long aerobic (run-biased)',zone:'engine',warm:'run',moves:[
+     m('Zone 2 aerobic','1','50 min','Run 30 / Row 12 / Ski 8','—','Conversational — nasal breathing where you can.'),
+     m('Chest & arm pump: flat DB press + fly + hammer curl','3','12 / 15 / 12','RPE 8','60s',''),
+     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
+   ],opt:true}
+ ]},
+{n:3,block:'Build',warmNote:'Top of the accumulation block — highest volume so far. Wk4 backs off to set up September.',sessions:[
+  {day:'Mon',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','5','3',L('squat',0.82),'3 min','Core strength lift — brace, drive the floor away.'),
+     m('Front Squat','3','6','RPE 8','2 min','Upright torso — quads + clean carryover.'),
+     m('Romanian Deadlift','4','8','RPE 8','2 min','Long hamstrings, controlled eccentric.'),
+     m('Bulgarian split squat (DB)','3','10 ea','RPE 8','90s','Unilateral — direct ATHX lunge carryover.'),
+     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
+     m('Finisher: sandbag carry','3','40 m','50 kg','60s','Grip + conditioning touch.'),
+   ]},
+  {day:'Tue',label:'Upper · Press strength + chest',zone:'strength',warm:'strength',moves:[
+     m('Strict Press','5','3',L('press',0.82),'2-3 min','Overhead strength — the ATHX lift.'),
+     m('Bench press','4','5','RPE 8, +load weekly','2-3 min','Chest strength anchor — arch, retract, control down.'),
+     m('Weighted pull-up','4','6-8','Add load','2 min','Vertical pull — lats & V-taper.'),
+     m('Pendlay row','4','8','RPE 8','90s','Horizontal pull — mid-back thickness.'),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
+   ]},
+  {day:'Wed',label:'Engine · Run threshold + Row + MetCon',zone:'engine',warm:'run',moves:[
+     m('Run intervals','4','5 min / 90s walk','@5:00-5:10/km','incl.','Longer reps. Hold pace on the last.'),
+     m('Row intervals','5','500 m','@1:50-1:52','75s',''),
+     m('MetCon skill: GTOH + burpee broad jumps','4','12 / 10','20 kg','2 min/rd','Groove the grind.'),
+     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
+   ]},
+  {day:'Thu',label:'Lower · Deadlift + hypertrophy',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','3',L('dead',0.8),'3 min','Heavy pull — the event\'s 5RM lift.'),
+     m('Barbell hip thrust','4','10','RPE 8','2 min','Glutes — lock out hard, 1s hold.'),
+     m('Leg press (or hack squat)','4','12','RPE 8','2 min','Quad hypertrophy — controlled, full ROM.'),
+     m('Walking lunge (DB)','3','12 ea','RPE 8','90s','Unilateral volume.'),
+     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
+     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
+   ]},
+  {day:'Fri',label:'Upper · Chest & arms',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
+     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
+     m('Chest: cable fly + weighted dip','4','15 / 10','RPE 8-9','75s','Superset — deep stretch then squeeze.'),
+     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
+     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
+   ]},
+  {day:'Sat',label:'Engine 2 · Endurance sim',zone:'sim',warm:'run',moves:[
+     m('ENDURANCE sim — run/row swap','1','22 min cap','Swap every 750m — RACE it','—','LOG TOTAL DISTANCE. Key benchmark.'),
+     m('Chest & arm pump: incline press + fly + curl','3','12 / 15 / 12','RPE 8','60s',''),
+     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
+   ],opt:true}
+ ]},
+{n:4,block:'Deload',warmNote:'Planned back-off before the September overload. Cut volume ~40%, keep it crisp. Don\'t skip — it sets up the big block.',sessions:[
+  {day:'Mon',label:'Lower (light)',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','3','3',L('squat',0.7),'2 min','Fast, submaximal.'),
+     m('Romanian Deadlift','3','8','RPE 6-7','2 min','Groove the pattern.'),
+     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+   ]},
+  {day:'Tue',label:'Upper (light + chest)',zone:'strength',warm:'strength',moves:[
+     m('Strict Press','3','3',L('press',0.7),'2 min','Fast.'),
+     m('Bench press','3','6','RPE 6-7','2 min','Light chest — keep the groove.'),
+     m('Weighted pull-up','3','6','Easy','2 min',''),
+     m('Arm superset: EZ curl + rope pushdown','3','12 / 15','RPE 7','45s',''),
+   ]},
+  {day:'Wed',label:'Engine · easy + strides',zone:'engine',warm:'run',moves:[
+     m('Easy run','1','30 min','Zone 2 @6:00/km','—','Relaxed.'),
+     m('Strides','5','20 sec','Smooth fast','walk back',''),
+   ]},
+  {day:'Thu',label:'Lower (light)',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','3','3',L('dead',0.7),'2 min','Fast.'),
+     m('Barbell hip thrust','3','8','RPE 6','2 min',''),
+     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
+   ]},
+  {day:'Fri',label:'Engine · Zone 2 + pump',zone:'engine',warm:'erg',moves:[
+     m('Zone 2 aerobic','1','25 min','Row 12 / Ski 13','—','Easy flush.'),
+     m('Arm & abs pump: curl + pushdown + hanging leg raise','3','15 / 15 / 15','RPE 7','45s',''),
+   ]},
+  {day:'Sat',label:'Rest / Reassess',zone:'rest',warm:null,moves:[
+     m('Rest — weigh in, retest if fresh','—','—','—','—','Send your Wk1-4 check-in. Confirm September off-dates.',false),
+   ]}
+ ]},
+{n:5,block:'OVERLOAD',warmNote:'SEPTEMBER OVERLOAD 1/3 — 6 days + optional doubles. Biggest fitness jump of the plan. Eat and sleep like it\'s your job.',sessions:[
+  {day:'Mon',label:'Lower · Squat (heavy) + posterior',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','6','4',L('squat',0.8),'3 min','Overload — extra sets, push load weekly.'),
+     m('Front Squat','4','6','RPE 8-9','2 min',''),
+     m('Romanian Deadlift','4','8','RPE 8-9','2 min',''),
+     m('Bulgarian split squat','4','10 ea','RPE 8','90s',''),
+     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
+     m('Finisher: sandbag carry','3','40 m','50 kg','60s',''),
+   ]},
+  {day:'Mon',label:'＋PM Engine (optional double)',zone:'engine',warm:'erg',moves:[
+     m('Zone 2 aerobic','1','30 min','Row 15 / Ski 15','—','Optional evening aerobic — free volume in your time off.'),
+     m('Biceps: EZ-bar curl + incline DB curl','4','10 / 12','RPE 8-9','60s','Superset. Control the negative.'),
+   ],opt:true},
+  {day:'Tue',label:'Upper · Press (heavy) + chest + arms',zone:'strength',warm:'strength',moves:[
+     m('Strict Press','6','4',L('press',0.8),'2-3 min','Overload overhead — the event lift.'),
+     m('Bench press','5','5','RPE 8, +load','2-3 min','Chest strength overload.'),
+     m('Weighted pull-up','5','6','Add load','2 min',''),
+     m('Pendlay row','4','6','RPE 8-9','90s',''),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+   ]},
+  {day:'Wed',label:'Engine · Run VO2 + Row + MetCon',zone:'engine',warm:'run',moves:[
+     m('Run intervals','6','3 min / 90s jog','@4:40-4:50/km','incl.','Overload run volume.'),
+     m('Row intervals','6','500 m','@1:50','75s',''),
+     m('MetCon X — full RX for time','1','25 min cap — RECORD','Race pace','—','Compare to Wk2 — should be faster.'),
+     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
+   ]},
+  {day:'Thu',label:'Lower · Deadlift (heavy) + hypertrophy',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','5','3',L('dead',0.78),'3 min','Overload — build the pull.'),
+     m('Barbell hip thrust','4','8','RPE 9','2 min',''),
+     m('Leg press','4','12','RPE 8','2 min',''),
+     m('Walking lunge (DB)','4','12 ea','RPE 8','90s',''),
+     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
+     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+   ]},
+  {day:'Thu',label:'＋PM Chest/Arms/Abs pump (optional double)',zone:'strength',warm:'strength',moves:[
+     m('Chest: incline DB press + cable fly','4','12 / 15','RPE 8','60s','2nd weekly chest hit.'),
+     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','75s',''),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
+   ],opt:true},
+  {day:'Fri',label:'Upper · Chest & arms hypertrophy',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
+     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
+     m('Chest: cable fly + weighted dip','4','15 / 10','RPE 8-9','75s','Superset — deep stretch then squeeze.'),
+     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
+     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
+   ]},
+  {day:'Sat',label:'Engine 2 · Long run-biased + core',zone:'engine',warm:'run',moves:[
+     m('Long Zone 2 run-biased','1','60 min','Run 40 / Row 12 / Ski 8','—','Big aerobic block — your limiter. Steady.'),
+     m('Core circuit (weighted, obliques)','4','12-15','Add load','45s','Abs priority to close the week.'),
+   ]}
+ ]},
+{n:6,block:'OVERLOAD',warmNote:'SEPTEMBER OVERLOAD 2/3 — push loads and paces past Wk5. Back off a set if bar speed tanks.',sessions:[
+  {day:'Mon',label:'Lower · Squat (heavy) + posterior',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','6','4',L('squat',0.81),'3 min','Overload — extra sets, push load weekly.'),
+     m('Front Squat','4','6','RPE 8-9','2 min',''),
+     m('Romanian Deadlift','4','8','RPE 8-9','2 min',''),
+     m('Bulgarian split squat','4','10 ea','RPE 8','90s',''),
+     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+     m('Finisher: sandbag carry','3','40 m','50 kg','60s',''),
+   ]},
+  {day:'Mon',label:'＋PM Engine (optional double)',zone:'engine',warm:'erg',moves:[
+     m('Zone 2 aerobic','1','30 min','Row 15 / Ski 15','—','Optional evening aerobic — free volume in your time off.'),
+     m('Biceps: weighted chin-ups + hammer curl','4','AMRAP / 12','Add load','75s','Superset. Chin over bar.'),
+   ],opt:true},
+  {day:'Tue',label:'Upper · Press (heavy) + chest + arms',zone:'strength',warm:'strength',moves:[
+     m('Strict Press','6','4',L('press',0.81),'2-3 min','Overload overhead — the event lift.'),
+     m('Bench press','5','5','RPE 8, +load','2-3 min','Chest strength overload.'),
+     m('Weighted pull-up','5','6','Add load','2 min',''),
+     m('Pendlay row','4','6','RPE 8-9','90s',''),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+   ]},
+  {day:'Wed',label:'Engine · Run VO2 + Row + MetCon',zone:'engine',warm:'run',moves:[
+     m('Run intervals','6','3 min / 90s jog','@4:40-4:50/km','incl.','Overload run volume.'),
+     m('Row intervals','6','500 m','@1:50','75s',''),
+     m('MetCon X — full RX for time','1','25 min cap — RECORD','Race pace','—','Compare to Wk2 — should be faster.'),
+     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
+   ]},
+  {day:'Thu',label:'Lower · Deadlift (heavy) + hypertrophy',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','5','3',L('dead',0.795),'3 min','Overload — build the pull.'),
+     m('Barbell hip thrust','4','8','RPE 9','2 min',''),
+     m('Leg press','4','12','RPE 8','2 min',''),
+     m('Walking lunge (DB)','4','12 ea','RPE 8','90s',''),
+     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
+     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
+   ]},
+  {day:'Thu',label:'＋PM Chest/Arms/Abs pump (optional double)',zone:'strength',warm:'strength',moves:[
+     m('Chest: incline DB press + cable fly','4','12 / 15','RPE 8','60s','2nd weekly chest hit.'),
+     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','75s',''),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
+   ],opt:true},
+  {day:'Fri',label:'Upper · Chest & arms hypertrophy',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
+     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
+     m('Chest: incline cable fly + deficit push-up','4','15 / AMRAP','RPE 9','75s','Stretch-focused chest burnout.'),
+     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
+     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
+   ]},
+  {day:'Sat',label:'Engine 2 · Long run-biased + core',zone:'engine',warm:'run',moves:[
+     m('Long Zone 2 run-biased','1','60 min','Run 40 / Row 12 / Ski 8','—','Big aerobic block — your limiter. Steady.'),
+     m('Core circuit (weighted, obliques)','4','12-15','Add load','45s','Abs priority to close the week.'),
+   ]}
+ ]},
+{n:7,block:'OVERLOAD',warmNote:'SEPTEMBER OVERLOAD 3/3 — peak volume. Grind it out; Wk8 lets you absorb it.',sessions:[
+  {day:'Mon',label:'Lower · Squat (heavy) + posterior',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','6','4',L('squat',0.82),'3 min','Overload — extra sets, push load weekly.'),
+     m('Front Squat','4','6','RPE 8-9','2 min',''),
+     m('Romanian Deadlift','4','8','RPE 8-9','2 min',''),
+     m('Bulgarian split squat','4','10 ea','RPE 8','90s',''),
+     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
+     m('Finisher: sandbag carry','3','40 m','50 kg','60s',''),
+   ]},
+  {day:'Mon',label:'＋PM Engine (optional double)',zone:'engine',warm:'erg',moves:[
+     m('Zone 2 aerobic','1','30 min','Row 15 / Ski 15','—','Optional evening aerobic — free volume in your time off.'),
+     m('Biceps: EZ-bar curl + incline DB curl','4','10 / 12','RPE 8-9','60s','Superset. Control the negative.'),
+   ],opt:true},
+  {day:'Tue',label:'Upper · Press (heavy) + chest + arms',zone:'strength',warm:'strength',moves:[
+     m('Strict Press','6','4',L('press',0.82),'2-3 min','Overload overhead — the event lift.'),
+     m('Bench press','5','5','RPE 8, +load','2-3 min','Chest strength overload.'),
+     m('Weighted pull-up','5','6','Add load','2 min',''),
+     m('Pendlay row','4','6','RPE 8-9','90s',''),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+   ]},
+  {day:'Wed',label:'Engine · Run VO2 + Row + MetCon',zone:'engine',warm:'run',moves:[
+     m('Run intervals','6','3 min / 90s jog','@4:40-4:50/km','incl.','Overload run volume.'),
+     m('Row intervals','6','500 m','@1:50','75s',''),
+     m('MetCon X — full RX for time','1','25 min cap — RECORD','Race pace','—','Compare to Wk2 — should be faster.'),
+     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
+   ]},
+  {day:'Thu',label:'Lower · Deadlift (heavy) + hypertrophy',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','5','3',L('dead',0.81),'3 min','Overload — build the pull.'),
+     m('Barbell hip thrust','4','8','RPE 9','2 min',''),
+     m('Leg press','4','12','RPE 8','2 min',''),
+     m('Walking lunge (DB)','4','12 ea','RPE 8','90s',''),
+     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
+     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
+   ]},
+  {day:'Thu',label:'＋PM Chest/Arms/Abs pump (optional double)',zone:'strength',warm:'strength',moves:[
+     m('Chest: incline DB press + cable fly','4','12 / 15','RPE 8','60s','2nd weekly chest hit.'),
+     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','75s',''),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
+   ],opt:true},
+  {day:'Fri',label:'Upper · Chest & arms hypertrophy',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
+     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
+     m('Chest: cable fly + weighted dip','4','15 / 10','RPE 8-9','75s','Superset — deep stretch then squeeze.'),
+     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
+     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
+   ]},
+  {day:'Sat',label:'Engine 2 · Long run-biased + core',zone:'engine',warm:'run',moves:[
+     m('Long Zone 2 run-biased','1','60 min','Run 40 / Row 12 / Ski 8','—','Big aerobic block — your limiter. Steady.'),
+     m('Core circuit (weighted, obliques)','4','12-15','Add load','45s','Abs priority to close the week.'),
+   ]}
+ ]},
+{n:8,block:'Deload',warmNote:'Recovery week — cut volume hard so the overload becomes fitness. Spring back by Saturday.',sessions:[
+  {day:'Mon',label:'Lower (light)',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','3','3',L('squat',0.72),'2 min','Fast, submax.'),
+     m('Romanian Deadlift','3','8','RPE 6','2 min',''),
+     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
+   ]},
+  {day:'Tue',label:'Upper (light + chest)',zone:'strength',warm:'strength',moves:[
+     m('Strict Press','3','3',L('press',0.72),'2 min',''),
+     m('Bench press','3','6','RPE 6-7','2 min','Light chest.'),
+     m('Weighted pull-up','3','6','Easy','2 min',''),
+     m('Arm superset: EZ curl + rope pushdown','3','12 / 15','RPE 7','45s',''),
+   ]},
+  {day:'Wed',label:'Engine · easy + strides',zone:'engine',warm:'run',moves:[
+     m('Easy run','1','30 min','Zone 2','—',''),
+     m('Strides','5','20 sec','Smooth','walk back',''),
+   ]},
+  {day:'Thu',label:'Lower (light)',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','3','3',L('dead',0.72),'2 min',''),
+     m('Barbell hip thrust','3','8','RPE 6','2 min',''),
+     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
+   ]},
+  {day:'Fri',label:'Engine · Zone 2 + pump',zone:'engine',warm:'erg',moves:[
+     m('Zone 2 aerobic','1','25 min','Row 12 / Ski 13','—','Easy.'),
+     m('Arm & abs pump: curl + pushdown + leg raise','3','15 / 15 / 15','RPE 7','45s',''),
+   ]},
+  {day:'Sat',label:'Rest / Reassess',zone:'rest',warm:null,moves:[
+     m('Rest — retest a lift or run if fresh','—','—','—','—','Send check-in. Peak block next.',false),
+   ]}
+ ]},
+{n:9,block:'Peak',warmNote:'Peak block — lifting goes heavy & event-specific, volume trims, chest/arms/abs maintained.',sessions:[
+  {day:'Mon',label:'Lower · Squat strength (heavy)',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','5','3',L('squat',0.85),'3 min','Heavy triples — event 3RM territory.'),
+     m('Romanian Deadlift','3','6','RPE 8','2 min',''),
+     m('Bulgarian split squat','3','8 ea','RPE 8','90s',''),
+     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+   ]},
+  {day:'Tue',label:'Upper · Press strength (heavy) + chest',zone:'strength',warm:'strength',moves:[
+     m('Strict Press','5','3',L('press',0.85),'2-3 min','Overhead — event priority now.'),
+     m('Bench press','4','5','RPE 8','2-3 min','Chest kept heavy.'),
+     m('Weighted pull-up','4','5','Heavy','2 min',''),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','3','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+   ]},
+  {day:'Wed',label:'Engine · VO2 + Row',zone:'engine',warm:'run',moves:[
+     m('Run intervals','6','3 min / 90s jog','@4:40/km','incl.','Sharp top end.'),
+     m('Row intervals','4','500 m','@1:48','75s',''),
+     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
+   ]},
+  {day:'Thu',label:'Lower · Deadlift strength (heavy)',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','3',L('dead',0.85),'3 min','Heavy triples — event 5RM lead-in.'),
+     m('Barbell hip thrust','3','8','RPE 8','2 min',''),
+     m('Farmer carry (heavy)','4','40 m','Heavy','90s',''),
+     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
+   ]},
+  {day:'Fri',label:'Upper · Chest & arms (moderate)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8','2 min','Chest maintenance.'),
+     m('Flat DB press','3','10','RPE 8','90s',''),
+     m('Chest: cable fly + weighted dip','4','15 / 10','RPE 8-9','75s','Superset — deep stretch then squeeze.'),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','3','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+   ]},
+  {day:'Sat',label:'Engine 2 · Endurance sim',zone:'sim',warm:'run',moves:[
+     m('ENDURANCE sim — run/row swap','1','22 min cap','Swap every 750m — PUSH','—','LOG DISTANCE vs Wk3.'),
+     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
+   ],opt:true}
+ ]},
+{n:10,block:'Peak',warmNote:'Max strength + a full dress rehearsal of all three ATHX pieces.',sessions:[
+  {day:'Mon',label:'Strength · EVENT PATTERN (chase PRs)',zone:'strength',warm:'strength',moves:[
+     m('20-min build: 1RM Press','1','1RM','PR attempt','incl.','Exact event order + clock. Plan attempts.'),
+     m('3RM Back Squat','1','3RM','PR attempt','incl.',''),
+     m('5RM Deadlift','1','5RM','PR attempt','incl.','This is close to what you SCORE.'),
+     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','3','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
+     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
+   ]},
+  {day:'Tue',label:'Upper · press + chest + arms',zone:'strength',warm:'strength',moves:[
+     m('Push press','4','3','RPE 8','2 min','Overhead power.'),
+     m('Bench press','4','5','RPE 8','2-3 min','Chest maintenance.'),
+     m('Weighted pull-up','4','5','Heavy','2 min','Only pull of the week — don\'t skip.'),
+     m('Chest: incline cable fly + deficit push-up','4','15 / AMRAP','RPE 9','75s','Stretch-focused chest burnout.'),
+     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+   ]},
+  {day:'Wed',label:'Engine · Threshold→VO2 + Row',zone:'engine',warm:'run',moves:[
+     m('Run intervals','4','5 min / 2 min walk','Threshold→VO2','incl.','Mixed.'),
+     m('Row intervals','4','400 m','@1:48','75s',''),
+     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
+   ]},
+  {day:'Thu',label:'Lower · Deadlift (heavy) + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','2',L('dead',0.88),'3 min','Near-max doubles.'),
+     m('Barbell hip thrust','3','6','RPE 8','2 min',''),
+     m('Bulgarian split squat','3','8 ea','RPE 8','90s',''),
+     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+   ]},
+  {day:'Fri',label:'★ FULL EVENT SIMULATION ★',zone:'sim',warm:'strength',moves:[
+     m('STRENGTH block','1','20 min','1RM press / 3RM squat / 5RM DL','→10 min refuel','Real rest windows between all three.'),
+     m('ENDURANCE block','1','22 min cap','Swap every 750m','→recovery',''),
+     m('METCON X block','1','25 min cap','Full RX','—','LOG EVERYTHING. Note where you fade.'),
+   ]},
+  {day:'Sat',label:'Rest / active recovery',zone:'rest',warm:null,moves:[
+     m('Rest or 30-min walk + light arms','—','—','—','—','Earned it.',false),
+   ]}
+ ]},
+{n:11,block:'Peak',warmNote:'Final sharpen — heavy but low volume, everything fast and crisp.',sessions:[
+  {day:'Mon',label:'Lower · squat (fast)',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','4','2',L('squat',0.85),'3 min','Fast, submax — feel powerful.'),
+     m('Bulgarian split squat','2','8 ea','RPE 7','90s',''),
+     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+   ]},
+  {day:'Tue',label:'Upper · press + chest (fast)',zone:'strength',warm:'strength',moves:[
+     m('Strict Press','4','2',L('press',0.85),'2-3 min','Snappy.'),
+     m('Bench press','3','5','RPE 7','2 min','Light chest.'),
+     m('Weighted pull-up','3','5','Moderate','2 min',''),
+     m('Arm blast: curl + skull crusher','3','10 / 10','RPE 7-8','60s','Keep the pump, low fatigue.'),
+   ]},
+  {day:'Wed',label:'Engine · crisp threshold',zone:'engine',warm:'run',moves:[
+     m('Run intervals','4','3 min / 2 min easy','@5:00/km','incl.','Sharp, not draining.'),
+     m('Biceps: EZ-bar curl + incline DB curl','4','10 / 12','RPE 8-9','60s','Superset. Control the negative.'),
+   ]},
+  {day:'Thu',label:'Lower · deadlift (fast)',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','3','2',L('dead',0.85),'3 min','Fast doubles — leave it in the tank.'),
+     m('Barbell hip thrust','2','8','RPE 7','2 min',''),
+     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
+   ]},
+  {day:'Fri',label:'Engine · MetCon primer',zone:'metcon',warm:'erg',moves:[
+     m('2 rounds @80%','2','see below','Prime, don\'t drain','2 min','Ski 20cal / GTOH 15 (20kg) / Sandbag 20m (50kg).'),
+     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
+   ]},
+  {day:'Sat',label:'Rest',zone:'rest',warm:null,moves:[
+     m('Rest','—','—','—','—','Full rest before comp week.',false),
+   ]}
+ ]},
+{n:12,block:'Taper',warmNote:'Taper — sharpen then rest. Arrive fresh, lean and primed.',sessions:[
+  {day:'Mon',label:'Openers',zone:'strength',warm:'strength',moves:[
+     m('Build to ~85% on each lift','1','1-2 reps','Press / Squat / DL','full','Confirm opening loads. Leave FRESH.'),
+     m('Light arm pump: curl + pushdown','2','12 / 15','Easy','60s','Optional.'),
+   ]},
+  {day:'Tue',label:'Shakeout',zone:'engine',warm:'run',moves:[
+     m('Easy run','1','15 min','Zone 2','—',''),
+     m('Strides','4','20 sec','Relaxed','—',''),
+   ]},
+  {day:'Wed',label:'Rest + prep',zone:'rest',warm:null,moves:[
+     m('Rest — sort kit, chalk, GF comp food','—','—','Sleep priority','—','',false),
+   ]},
+  {day:'Thu',label:'Primer (very easy)',zone:'engine',warm:'erg',moves:[
+     m('Very easy mixed','1','12 min','Zone 1-2','—',''),
+     m('Ski bursts','3','15 sec','Sharp, short','full','Stay sharp.'),
+   ]},
+  {day:'Fri',label:'Rest / travel',zone:'rest',warm:null,moves:[
+     m('Rest','—','—','Hydrate, off feet','—','Familiar GF food. Early night.',false),
+   ]},
+  {day:'Sat',label:'★ COMPETE ★',zone:'sim',warm:null,moves:[
+     m('Execute the plan','—','—','Controlled starts every piece','—','Trust the work. Leave it on the floor.',false),
+   ]}
+ ]}
+];
+
+/* ============================ STATE ============================ */
+const KEY='athx.v5';
+let S=load();
+function load(){
+  try{const r=localStorage.getItem(KEY); if(r) return JSON.parse(r);}catch(e){}
+  // carry over 1RMs, comp date & bodyweight from a previous version (logs reset — sessions changed)
+  let seed=null; try{const o=localStorage.getItem('athx.v4')||localStorage.getItem('athx.v3')||localStorage.getItem('athx.v2'); if(o)seed=JSON.parse(o);}catch(e){}
+  const start=new Date(); const comp=new Date(start.getTime()+83*864e5);
+  return {rm:(seed&&seed.rm)||{...DEF_RM}, comp:(seed&&seed.comp)||comp.toISOString().slice(0,10),
+          logs:{}, bw:(seed&&seed.bw)||[], curW:1, curD:0, panel:'train'};
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+/* ============================ HELPERS ============================ */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const round25=x=>Math.round(x/2.5)*2.5;
+function targetText(t){
+  if(t&&t.lift) return round25(S.rm[t.lift]*t.pct)+' kg  ('+Math.round(t.pct*100)+'%)';
+  return t;
+}
+function keyFor(w,d,i){return w+'.'+d+'.'+i;}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1600);}
+
+/* ============================ RENDER ============================ */
+function render(){
+  renderBoard(); renderWeeks(); renderDays(); renderSession();
+}
+function sessDone(w,d){
+  const s=WEEKS[w-1].sessions[d]; const logged=s.moves.filter(x=>x.log!==false);
+  if(!logged.length) return false;
+  return logged.every((_,i)=>{
+    const idx=s.moves.indexOf(logged[i]);
+    return (S.logs[keyFor(w,d,idx)]||{}).done;
+  });
+}
+function weekDone(w){return WEEKS[w-1].sessions.every((_,d)=>sessDone(w,d));}
+
+function renderBoard(){
+  const now=new Date(); const comp=new Date(S.comp+'T09:00:00');
+  const days=Math.max(0,Math.ceil((comp-now)/864e5));
+  $('#countDays').innerHTML=days+'<span class="u">d</span>';
+  const wk=WEEKS[S.curW-1];
+  $('#wkNow').textContent=S.curW;
+  $('#blockTag').textContent=wk.block+' Block'+(wk.deload?' · Deload':'');
+  const cd=comp.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  $('#compDateLbl').textContent=cd;
+  // overall programme completion
+  let tot=0,don=0;
+  WEEKS.forEach((W,wi)=>W.sessions.forEach((_,di)=>{tot++; if(sessDone(wi+1,di))don++;}));
+  $('#progFill').style.width=(tot?Math.round(don/tot*100):0)+'%';
+}
+function renderWeeks(){
+  const box=$('#weeks'); box.innerHTML='';
+  WEEKS.forEach(W=>{
+    const b=document.createElement('button');
+    b.className='chip'+(W.n===S.curW?' on':'')+(weekDone(W.n)?' done':'');
+    b.innerHTML=W.n+'<small>'+W.block.slice(0,4)+'</small>';
+    b.onclick=()=>{S.curW=W.n;S.curD=0;save();render();
+      $('#weeks').scrollTo({left:b.offsetLeft-140,behavior:'smooth'});};
+    box.appendChild(b);
+  });
+}
+function renderDays(){
+  const box=$('#days'); box.innerHTML='';
+  WEEKS[S.curW-1].sessions.forEach((s,d)=>{
+    const b=document.createElement('button');
+    b.className='daytab'+(d===S.curD?' on':'');
+    const done=sessDone(S.curW,d);
+    b.innerHTML='<span class="dot" style="background:'+zoneColor[s.zone]+'"></span>'+s.day+(done?' <span class="tick">✓</span>':'');
+    b.onclick=()=>{S.curD=d;save();renderDays();renderSession();};
+    box.appendChild(b);
+  });
+}
+function renderSession(){
+  const s=WEEKS[S.curW-1].sessions[S.curD];
+  const c=zoneColor[s.zone];
+  const head=$('#sessHead');
+  head.innerHTML='<span class="zone-badge" style="background:'+c+'">'+zoneName[s.zone]+'</span>'+
+    '<span style="font-family:var(--mono);font-size:12px;color:var(--mut)">'+s.day.toUpperCase()+' · WK'+S.curW+'</span>';
+  $('#sessTitle').textContent=s.label;
+  const wk=WEEKS[S.curW-1];
+  $('#sessSub').textContent=wk.warmNote&&S.curD===0?wk.warmNote:(s.zone==='rest'?'Recovery — keep it genuinely easy.':'');
+
+  // warm-up
+  const warmAcc=$('#warmAcc');
+  if(s.warm===null && s.zone==='rest'){warmAcc.style.display='none';}
+  else{
+    warmAcc.style.display='';
+    let items=[...WARM.general]; if(s.warm&&WARM[s.warm])items=items.concat(WARM[s.warm]);
+    $('#warmBody').innerHTML=items.map(w=>
+      '<div class="warm-item"><div><div class="wn">'+w[0]+'</div><div class="wd">'+w[1]+'</div></div><div class="wm">'+w[2]+'</div></div>').join('');
+  }
+  $('#coolBody').innerHTML=COOL.map(w=>
+    '<div class="warm-item"><div><div class="wn">'+w[0]+'</div><div class="wd">'+w[1]+'</div></div><div class="wm">'+w[2]+'</div></div>').join('');
+
+  // moves
+  const box=$('#moves'); box.innerHTML='';
+  s.moves.forEach((mv,i)=>box.appendChild(moveCard(mv,i)));
+}
+function parseRestSec(rest){
+  if(!rest) return 0;
+  const mm=(''+rest).match(/(\d+)\s*min/); const ss=(''+rest).match(/(\d+)\s*s/);
+  let sec=0; if(mm)sec+=parseInt(mm[1])*60; if(ss)sec+=parseInt(ss[1]);
+  if(!sec){const m2=(''+rest).match(/^(\d+)$/); if(m2)sec=parseInt(m2[1]);}
+  return sec;
+}
+function moveCard(mv,i){
+  const k=keyFor(S.curW,S.curD,i);
+  const log=S.logs[k]||{sets:[],rpe:'',done:false};
+  const el=document.createElement('div');
+  el.className='move'+(log.done?' done':'');
+  const specs=[];
+  if(mv.sets&&mv.sets!=='—')specs.push('<span class="spec"><b>sets</b>'+mv.sets+'</span>');
+  if(mv.reps&&mv.reps!=='—')specs.push('<span class="spec"><b>reps</b>'+mv.reps+'</span>');
+  const tt=targetText(mv.target);
+  if(tt&&tt!=='—')specs.push('<span class="spec tgt"><b style="color:inherit;opacity:.7">target</b>'+tt+'</span>');
+  const rsec=parseRestSec(mv.rest);
+  let restEl='';
+  if(mv.rest&&mv.rest!=='—'&&mv.rest!=='incl.'){
+    restEl=rsec? '<button class="rest-btn" data-rest="'+rsec+'">⏱ rest '+mv.rest+'</button>'
+                : '<span class="spec"><b>rest</b>'+mv.rest+'</span>';
+  }else if(mv.rest==='incl.'){restEl='<span class="spec"><b>rest</b>built in</span>';}
+
+  el.innerHTML=
+    '<div class="move-top"><div class="move-name">'+mv.name+'</div>'+
+      (mv.log!==false?'<button class="move-check" aria-label="mark done">✓</button>':'')+
+    '</div>'+
+    '<div class="specs">'+specs.join('')+restEl+'</div>'+
+    (mv.note?'<div class="note">'+mv.note+'</div>':'');
+
+  if(mv.log!==false){
+    const nSets=parseInt(mv.sets);
+    const wide=!(nSets>=1&&nSets<=4);
+    const nInputs=wide?1:nSets;
+    let inputs='<div class="logrow"><span class="lbl">Log '+(wide?'result':'load / result per set')+'</span>';
+    for(let s2=0;s2<nInputs;s2++){
+      const val=(log.sets&&log.sets[s2])||'';
+      inputs+='<input class="loginput'+(wide?' wide':'')+'" data-set="'+s2+'" value="'+val.replace(/"/g,'&quot;')+'" placeholder="'+(wide?'time / dist / notes':'kg')+'">';
+    }
+    inputs+='<input class="loginput rpe" data-rpe="1" value="'+(log.rpe||'')+'" placeholder="RPE">';
+    inputs+='</div>';
+    el.innerHTML+=inputs;
+  }
+
+  // events
+  const chk=el.querySelector('.move-check');
+  if(chk)chk.onclick=()=>{const L2=S.logs[k]||{sets:[],rpe:'',done:false};L2.done=!L2.done;S.logs[k]=L2;save();renderSession();renderDays();renderBoard();renderWeeks();
+    if(L2.done)toast('Logged ✓');};
+  el.querySelectorAll('.loginput').forEach(inp=>{
+    inp.oninput=()=>{const L2=S.logs[k]||{sets:[],rpe:'',done:false};
+      if(inp.dataset.rpe)L2.rpe=inp.value; else{L2.sets=L2.sets||[];L2.sets[+inp.dataset.set]=inp.value;}
+      S.logs[k]=L2;save();};
+  });
+  el.querySelectorAll('.rest-btn').forEach(b=>b.onclick=()=>startTimer(+b.dataset.rest));
+  return el;
+}
+
+/* ============================ REST TIMER ============================ */
+let tInt=null,tLeft=0;
+function startTimer(sec){
+  tLeft=sec; showTimer(); paint();
+  clearInterval(tInt);
+  tInt=setInterval(()=>{tLeft--; paint(); if(tLeft<=0){clearInterval(tInt);
+    $('#tTime').classList.add('done'); if(navigator.vibrate)navigator.vibrate([120,60,120]); toast('Rest complete');}},1000);
+  function paint(){const mm=Math.floor(Math.abs(tLeft)/60),ss=String(Math.abs(tLeft)%60).padStart(2,'0');
+    $('#tTime').textContent=(tLeft<0?'-':'')+mm+':'+ss;}
+}
+function showTimer(){$('#timer').classList.add('show');$('#tTime').classList.remove('done');}
+$('#tKill').onclick=()=>{clearInterval(tInt);$('#timer').classList.remove('show');};
+$('#tAdd').onclick=()=>{tLeft+=30;$('#tTime').classList.remove('done');};
+
+/* ============================ PANELS / NAV ============================ */
+$$('.nav button').forEach(b=>b.onclick=()=>{
+  const p=b.dataset.panel; S.panel=p; save();
+  $$('.nav button').forEach(x=>x.classList.toggle('on',x===b));
+  $$('.panel').forEach(x=>x.classList.remove('on'));
+  $('#panel-'+p).classList.add('on');
+  if(p==='progress')renderProgress();
+  if(p==='settings')renderSettings();
+});
+
+/* ============================ PROGRESS ============================ */
+function renderProgress(){
+  // bodyweight
+  const last=S.bw[S.bw.length-1];
+  $('#bwLast').textContent=last?('Last: '+last.kg+' kg · '+new Date(last.d).toLocaleDateString('en-GB',{day:'2-digit',month:'short'})):'No entries yet';
+  const spark=$('#bwSpark'); spark.innerHTML='';
+  if(S.bw.length){
+    const vals=S.bw.map(x=>x.kg); const mn=Math.min(...vals),mx=Math.max(...vals);
+    S.bw.slice(-20).forEach(x=>{const b=document.createElement('div');b.className='bar';
+      const h=mx===mn?100:((x.kg-mn)/(mx-mn))*100; b.style.height=(20+h*0.8)+'%'; b.title=x.kg+'kg'; spark.appendChild(b);});
+    if(S.bw.length>=2){const d=(S.bw[S.bw.length-1].kg-S.bw[0].kg).toFixed(1);
+      $('#bwTrend').textContent='Change since first entry: '+(d>0?'+':'')+d+' kg. Target: 0.5–0.75 kg/week to ~109–111 kg by comp.';}
+  }
+  // checkin week options
+  const sel=$('#ciWeek'); if(!sel.children.length){for(let w=1;w<=12;w++){const o=document.createElement('option');o.value=w;o.textContent='Week '+w;sel.appendChild(o);}}
+  sel.value=S.curW;
+}
+$('#bwSave').onclick=()=>{const v=parseFloat($('#bwInput').value);if(!v)return;
+  S.bw.push({d:Date.now(),kg:v});save();$('#bwInput').value='';renderProgress();toast('Weight logged');};
+
+$('#ciGen').onclick=()=>{
+  const w=+$('#ciWeek').value; const W=WEEKS[w-1];
+  let out='ATHX WEEKLY CHECK-IN — WEEK '+w+' ('+W.block+(W.deload?' / deload':'')+')\n';
+  const last=S.bw[S.bw.length-1];
+  out+='Bodyweight: '+(last?last.kg+' kg':'—')+'\n';
+  out+='1RMs on file: Squat '+S.rm.squat+' / DL '+S.rm.dead+' / Press '+S.rm.press+'\n';
+  out+='—\nSessions:\n';
+  W.sessions.forEach((s,d)=>{
+    const done=sessDone(w,d);
+    out+=(done?'[x] ':'[ ] ')+s.day+' · '+s.label+'\n';
+    s.moves.forEach((mv,i)=>{
+      const L2=S.logs[keyFor(w,d,i)]; if(L2&&((L2.sets&&L2.sets.filter(Boolean).length)||L2.rpe)){
+        const sets=(L2.sets||[]).filter(Boolean).join(' / ');
+        out+='     - '+mv.name+': '+(sets||'')+(L2.rpe?'  @RPE'+L2.rpe:'')+'\n';
+      }
+    });
+  });
+  out+='—\nHow I felt / niggles / questions:\n(add your notes here before sending)';
+  const o=$('#ciOut'); o.textContent=out; o.style.display='block'; $('#ciCopy').style.display='block';
+};
+$('#ciCopy').onclick=()=>{const t=$('#ciOut').textContent;
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('Copied — paste it to your coach'));
+  else toast('Select & copy the text');};
+
+/* ============================ SETTINGS ============================ */
+function renderSettings(){
+  $('#rmSquat').value=S.rm.squat; $('#rmDead').value=S.rm.dead; $('#rmPress').value=S.rm.press;
+  $('#setDate').value=S.comp;
+}
+['rmSquat','rmDead','rmPress'].forEach(id=>{const map={rmSquat:'squat',rmDead:'dead',rmPress:'press'};
+  $('#'+id).oninput=e=>{const v=parseFloat(e.target.value);if(v){S.rm[map[id]]=v;save();renderBoard();toast('Loads updated');}};});
+$('#setDate').onchange=e=>{S.comp=e.target.value;save();renderBoard();};
+$('#editDate').onclick=()=>{$$('.nav button').forEach(x=>x.classList.toggle('on',x.dataset.panel==='settings'));
+  $$('.panel').forEach(x=>x.classList.remove('on'));$('#panel-settings').classList.add('on');S.panel='settings';save();renderSettings();$('#setDate').focus();};
+$('#resetBtn').onclick=()=>{if(confirm('Clear all logged sets, RPEs and bodyweight? Your programme stays; only your logs are wiped.')){
+  S.logs={};S.bw=[];save();render();toast('Logs cleared');}};
+
+/* ============================ BOOT ============================ */
+(function boot(){
+  // restore panel
+  const p=S.panel||'train';
+  $$('.nav button').forEach(x=>x.classList.toggle('on',x.dataset.panel===p));
+  $$('.panel').forEach(x=>x.classList.remove('on'));$('#panel-'+p).classList.add('on');
+  render();
+  if(p==='progress')renderProgress(); if(p==='settings')renderSettings();
+})();
+</script>
+</body>
+</html>
