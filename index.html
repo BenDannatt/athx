@@ -238,6 +238,7 @@ input{font-family:var(--mono)}
     <h3>Tested 1RM — loads recalc live</h3>
     <div class="field"><div><label>Back Squat 1RM</label><small>kg</small></div><input id="rmSquat" type="number" inputmode="decimal"></div>
     <div class="field"><div><label>Deadlift 1RM</label><small>kg</small></div><input id="rmDead" type="number" inputmode="decimal"></div>
+    <div class="field"><div><label>Bench Press 1RM</label><small>kg</small></div><input id="rmBench" type="number" inputmode="decimal"></div>
     <div class="field"><div><label>Strict Press 1RM</label><small>kg</small></div><input id="rmPress" type="number" inputmode="decimal"></div>
     <div class="hint">After your Week 1 test, put the real numbers in here and every % target across all 12 weeks updates automatically.</div>
   </div>
@@ -251,7 +252,7 @@ input{font-family:var(--mono)}
     <button class="bigbtn ghost" id="resetBtn">Reset all logged data</button>
   </div>
   <div class="hint" style="text-align:center;margin-top:18px;color:var(--mut2)">Loads are estimates until you log your Week 1 test. Weight-cut guardrail: 0.5–0.75 kg/week. Check ferritin/B12/Vit D in Week 1.</div>
-  <div style="text-align:center;margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--ember);letter-spacing:.08em;border-top:1px solid var(--line);padding-top:12px">PROGRAMME v5 · UPPER/LOWER HYBRID</div>
+  <div style="text-align:center;margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--ember);letter-spacing:.08em;border-top:1px solid var(--line);padding-top:12px">PROGRAMME v10 · UPPER/LOWER · PROGRESSIVE</div>
 </div>
 
 </div>
@@ -268,7 +269,7 @@ input{font-family:var(--mono)}
 <script>
 "use strict";
 /* ============================ DATA ============================ */
-const DEF_RM = {squat:110, dead:150, press:70};
+const DEF_RM = {squat:110, dead:150, press:70, bench:100};
 const zoneColor = {strength:'var(--strength)',engine:'var(--engine)',metcon:'var(--metcon)',sim:'var(--metcon)',rest:'var(--rest)',test:'var(--strength)'};
 const zoneName  = {strength:'Strength',engine:'Engine',metcon:'MetCon X',sim:'Simulation',rest:'Rest',test:'Test'};
 
@@ -277,549 +278,572 @@ const zoneName  = {strength:'Strength',engine:'Engine',metcon:'MetCon X',sim:'Si
 // warm-up routines
 // warm-up routines
 // warm-up routines
+// warm-up routines
+// warm-up routines
+// warm-up routines
+// warm-up routines
+// warm-up routines
+// warm-up routines
 const WARM = {
  general:[
-  ['Easy cardio (row/ski/bike)','Build to a light sweat','5 min'],
+  ['Easy cardio (bike/row)','Build to a light sweat','5 min'],
   ['Foam roll','Quads, lats, calves, upper back','2 min'],
   ["World's greatest stretch",'Open hips & T-spine','5/side'],
-  ['Leg swings','Front/back + side/side','10 ea'],
-  ['Band pull-aparts + dislocates','Shoulder prep','15 / 10'],
+  ['Leg swings + band pull-aparts','Prime hips & shoulders','10 / 15'],
  ],
  strength:[
   ['Goblet squat + glute bridge','Prime hips','2×10'],
   ['Scap pull-ups + push-ups','Prime pull/press','2×10'],
-  ['Ramp-up sets','Progressive sets to working load — never skip','2–4'],
+  ['Ramp-up sets','Progressive sets to working load on the main lift — never skip','2–4'],
  ],
- run:[
-  ['Walk → easy jog','Ease in','2+3 min'],
-  ['A-skips + high knees','Open stride','2×20m'],
-  ['Strides','Build to ~90% smooth','3×20m'],
- ],
- erg:[
-  ['Easy build','Raise stroke rate','3 min'],
-  ['Pick-up bursts','20s hard / 40s easy','×3'],
- ],
+ run:[['Walk → easy jog','Ease in','2+3 min'],['Strides','Build to ~90% smooth','3×20m']],
+ erg:[['Easy build','Raise stroke rate','3 min'],['Pick-up bursts','20s hard / 40s easy','×3']],
 };
 const COOL=[
- ['Easy walk / spin','Bring HR down','3–5 min'],
- ['Stretch: hips, hams, quads, calves','Calf/Achilles priority at bodyweight','30s ea'],
- ['Stretch: lats, pecs, shoulders, biceps','After press, pull & arm work','30s ea'],
+ ['Easy walk / spin','Bring HR down','3 min'],
+ ['Stretch: hips, hams, quads, calves','30s each','30s ea'],
+ ['Stretch: lats, pecs, shoulders','30s each','30s ea'],
  ['Diaphragmatic breathing','Down-regulate — helps sleep','2 min'],
 ];
 const L=(lift,pct)=>({lift,pct});
 const m=(name,sets,reps,target,rest,note,log=true)=>({name,sets,reps,target,rest,note,log});
 
 const WEEKS=[
-{n:1,block:'Build',warmNote:'Upper/Lower/Engine hybrid. Week 1 sets baselines — but you train through it. Log your test numbers in Setup so loads auto-calc.',sessions:[
-  {day:'Mon',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
-     m('Back Squat — build to a heavy 3 (record 3RM)','1','3RM','1 RIR — baseline','full','Sets your squat loads for the whole plan.'),
-     m('Back Squat back-off','3','5',L('squat',0.75),'3 min','Explosive up.'),
-     m('Front Squat','3','6','RPE 8','2 min','Upright torso — quads + clean carryover.'),
-     m('Romanian Deadlift','4','8','RPE 8','2 min','Long hamstrings, controlled eccentric.'),
-     m('Bulgarian split squat (DB)','3','10 ea','RPE 8','90s','Unilateral — direct ATHX lunge carryover.'),
-     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
-     m('Finisher: sandbag carry','3','40 m','50 kg','60s','Grip + conditioning touch.'),
+{n:1,block:'Block 1 · week 1/3',warmNote:'Set your ROUGH maxes (squat/bench/deadlift/press) in Setup so the %s are right. This week: 72% for 5s. The % climbs every week — beat last week.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','4','5',L('bench',0.725),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','5',L('press',0.675),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
    ]},
-  {day:'Tue',label:'Upper · Press strength + chest',zone:'strength',warm:'strength',moves:[
-     m('Strict Press — build to a heavy 3 (record 3RM)','1','3RM','1 RIR — baseline','full','Sets your press loads. Glutes tight, no leg drive.'),
-     m('Strict Press back-off','3','5',L('press',0.75),'2-3 min',''),
-     m('Bench press','4','5','RPE 8, +load weekly','2-3 min','Chest strength anchor — arch, retract, control down.'),
-     m('Weighted pull-up','4','6-8','Add load','2 min','Vertical pull — lats & V-taper.'),
-     m('Pendlay row','4','8','RPE 8','90s','Horizontal pull — mid-back thickness.'),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
-     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','4','5',L('squat',0.725),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
    ]},
-  {day:'Wed',label:'Engine · Run + Row + MetCon',zone:'engine',warm:'run',moves:[
-     m('Continuous tempo run','1','20 min','@5:30/km steady','—','No walking — you\'ve the base. Record how it feels.'),
-     m('Row intervals','5','500 m','@1:52-1:55','90s','Threshold, even splits.'),
-     m('MetCon movements: 4 rounds','4','see below','~85%','2 min/rd','Learn the RX shapes hard.'),
-     m('· GTOH 12 (20kg) / Sandbag 40m (50kg) / BJO 12 (24")','4','—','RX','—','Step down off the box.'),
-     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
    ]},
-  {day:'Thu',label:'Lower · Deadlift + hypertrophy',zone:'strength',warm:'strength',moves:[
-     m('Deadlift — build to a heavy 5 (record 5RM)','1','5RM','1 RIR — baseline','full','Sets your DL loads. Then back-offs.'),
-     m('Deadlift back-off','3','5',L('dead',0.72),'3 min',''),
-     m('Barbell hip thrust','4','10','RPE 8','2 min','Glutes — lock out hard, 1s hold.'),
-     m('Leg press (or hack squat)','4','12','RPE 8','2 min','Quad hypertrophy — controlled, full ROM.'),
-     m('Walking lunge (DB)','3','12 ea','RPE 8','90s','Unilateral volume.'),
-     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
-     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
-   ]},
-  {day:'Fri',label:'Upper · Chest & arms',zone:'strength',warm:'strength',moves:[
-     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
-     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
-     m('Chest: cable fly + weighted dip','4','15 / 10','RPE 8-9','75s','Superset — deep stretch then squeeze.'),
-     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
-     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
-     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
-   ]},
-  {day:'Sat',label:'Engine 2 · Long aerobic (run-biased)',zone:'engine',warm:'run',moves:[
-     m('Zone 2 aerobic','1','45 min','Run 25 / Row 12 / Ski 8','—','Your engine is the limiter — protect this session.'),
-     m('Chest & arm pump: incline DB press + cable fly + curl','3','12 / 15 / 12','RPE 8','60s','2nd weekly chest hit.'),
-     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
-   ],opt:true}
- ]},
-{n:2,block:'Build',warmNote:'Volume climbs. Chase small load PRs vs Week 1.',sessions:[
-  {day:'Mon',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
-     m('Back Squat','5','5',L('squat',0.78),'3 min','Core strength lift — brace, drive the floor away.'),
-     m('Front Squat','3','6','RPE 8','2 min','Upright torso — quads + clean carryover.'),
-     m('Romanian Deadlift','4','8','RPE 8','2 min','Long hamstrings, controlled eccentric.'),
-     m('Bulgarian split squat (DB)','3','10 ea','RPE 8','90s','Unilateral — direct ATHX lunge carryover.'),
-     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
-     m('Finisher: sandbag carry','3','40 m','50 kg','60s','Grip + conditioning touch.'),
-   ]},
-  {day:'Tue',label:'Upper · Press strength + chest',zone:'strength',warm:'strength',moves:[
-     m('Strict Press','5','5',L('press',0.78),'2-3 min','Overhead strength — the ATHX lift.'),
-     m('Bench press','4','6','RPE 8, +load weekly','2-3 min','Chest strength anchor — arch, retract, control down.'),
-     m('Weighted pull-up','4','6-8','Add load','2 min','Vertical pull — lats & V-taper.'),
-     m('Pendlay row','4','8','RPE 8','90s','Horizontal pull — mid-back thickness.'),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
-     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
-   ]},
-  {day:'Wed',label:'Engine · Run VO2 + Row + MetCon',zone:'engine',warm:'run',moves:[
-     m('Run intervals','6','3 min / 90s jog','@4:45-4:55/km','incl.','Hard, repeatable, even efforts.'),
-     m('Row intervals','4','400 m','@1:50','75s',''),
-     m('MetCon X — full RX for time','1','25 min cap — RECORD','Race pace','—','First full benchmark. Pace the opening ski.'),
-     m('· Ski 45 / GTOH 30 / Sandbag 30m / BJO 30 / Lunge 30m / Burpee-BJ 30m / Ski 45','1','—','RX','—',''),
-     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
-   ]},
-  {day:'Thu',label:'Lower · Deadlift + hypertrophy',zone:'strength',warm:'strength',moves:[
-     m('Deadlift','4','5',L('dead',0.75),'3 min','Heavy pull — the event\'s 5RM lift.'),
-     m('Barbell hip thrust','4','10','RPE 8','2 min','Glutes — lock out hard, 1s hold.'),
-     m('Leg press (or hack squat)','4','12','RPE 8','2 min','Quad hypertrophy — controlled, full ROM.'),
-     m('Walking lunge (DB)','3','12 ea','RPE 8','90s','Unilateral volume.'),
-     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
-     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
-   ]},
-  {day:'Fri',label:'Upper · Chest & arms',zone:'strength',warm:'strength',moves:[
-     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
-     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
-     m('Chest: incline cable fly + deficit push-up','4','15 / AMRAP','RPE 9','75s','Stretch-focused chest burnout.'),
-     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
-     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
-     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
-   ]},
-  {day:'Sat',label:'Engine 2 · Long aerobic (run-biased)',zone:'engine',warm:'run',moves:[
-     m('Zone 2 aerobic','1','50 min','Run 30 / Row 12 / Ski 8','—','Conversational — nasal breathing where you can.'),
-     m('Chest & arm pump: flat DB press + fly + hammer curl','3','12 / 15 / 12','RPE 8','60s',''),
-     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
-   ],opt:true}
- ]},
-{n:3,block:'Build',warmNote:'Top of the accumulation block — highest volume so far. Wk4 backs off to set up September.',sessions:[
-  {day:'Mon',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
-     m('Back Squat','5','3',L('squat',0.82),'3 min','Core strength lift — brace, drive the floor away.'),
-     m('Front Squat','3','6','RPE 8','2 min','Upright torso — quads + clean carryover.'),
-     m('Romanian Deadlift','4','8','RPE 8','2 min','Long hamstrings, controlled eccentric.'),
-     m('Bulgarian split squat (DB)','3','10 ea','RPE 8','90s','Unilateral — direct ATHX lunge carryover.'),
-     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
-     m('Finisher: sandbag carry','3','40 m','50 kg','60s','Grip + conditioning touch.'),
-   ]},
-  {day:'Tue',label:'Upper · Press strength + chest',zone:'strength',warm:'strength',moves:[
-     m('Strict Press','5','3',L('press',0.82),'2-3 min','Overhead strength — the ATHX lift.'),
-     m('Bench press','4','5','RPE 8, +load weekly','2-3 min','Chest strength anchor — arch, retract, control down.'),
-     m('Weighted pull-up','4','6-8','Add load','2 min','Vertical pull — lats & V-taper.'),
-     m('Pendlay row','4','8','RPE 8','90s','Horizontal pull — mid-back thickness.'),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
-     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
-   ]},
-  {day:'Wed',label:'Engine · Run threshold + Row + MetCon',zone:'engine',warm:'run',moves:[
-     m('Run intervals','4','5 min / 90s walk','@5:00-5:10/km','incl.','Longer reps. Hold pace on the last.'),
-     m('Row intervals','5','500 m','@1:50-1:52','75s',''),
-     m('MetCon skill: GTOH + burpee broad jumps','4','12 / 10','20 kg','2 min/rd','Groove the grind.'),
-     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
-   ]},
-  {day:'Thu',label:'Lower · Deadlift + hypertrophy',zone:'strength',warm:'strength',moves:[
-     m('Deadlift','4','3',L('dead',0.8),'3 min','Heavy pull — the event\'s 5RM lift.'),
-     m('Barbell hip thrust','4','10','RPE 8','2 min','Glutes — lock out hard, 1s hold.'),
-     m('Leg press (or hack squat)','4','12','RPE 8','2 min','Quad hypertrophy — controlled, full ROM.'),
-     m('Walking lunge (DB)','3','12 ea','RPE 8','90s','Unilateral volume.'),
-     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
-     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
-   ]},
-  {day:'Fri',label:'Upper · Chest & arms',zone:'strength',warm:'strength',moves:[
-     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
-     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
-     m('Chest: cable fly + weighted dip','4','15 / 10','RPE 8-9','75s','Superset — deep stretch then squeeze.'),
-     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
-     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
-     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
-   ]},
-  {day:'Sat',label:'Engine 2 · Endurance sim',zone:'sim',warm:'run',moves:[
-     m('ENDURANCE sim — run/row swap','1','22 min cap','Swap every 750m — RACE it','—','LOG TOTAL DISTANCE. Key benchmark.'),
-     m('Chest & arm pump: incline press + fly + curl','3','12 / 15 / 12','RPE 8','60s',''),
-     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
-   ],opt:true}
- ]},
-{n:4,block:'Deload',warmNote:'Planned back-off before the September overload. Cut volume ~40%, keep it crisp. Don\'t skip — it sets up the big block.',sessions:[
-  {day:'Mon',label:'Lower (light)',zone:'strength',warm:'strength',moves:[
-     m('Back Squat','3','3',L('squat',0.7),'2 min','Fast, submaximal.'),
-     m('Romanian Deadlift','3','8','RPE 6-7','2 min','Groove the pattern.'),
-     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
-   ]},
-  {day:'Tue',label:'Upper (light + chest)',zone:'strength',warm:'strength',moves:[
-     m('Strict Press','3','3',L('press',0.7),'2 min','Fast.'),
-     m('Bench press','3','6','RPE 6-7','2 min','Light chest — keep the groove.'),
-     m('Weighted pull-up','3','6','Easy','2 min',''),
-     m('Arm superset: EZ curl + rope pushdown','3','12 / 15','RPE 7','45s',''),
-   ]},
-  {day:'Wed',label:'Engine · easy + strides',zone:'engine',warm:'run',moves:[
-     m('Easy run','1','30 min','Zone 2 @6:00/km','—','Relaxed.'),
-     m('Strides','5','20 sec','Smooth fast','walk back',''),
-   ]},
-  {day:'Thu',label:'Lower (light)',zone:'strength',warm:'strength',moves:[
-     m('Deadlift','3','3',L('dead',0.7),'2 min','Fast.'),
-     m('Barbell hip thrust','3','8','RPE 6','2 min',''),
-     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
-   ]},
-  {day:'Fri',label:'Engine · Zone 2 + pump',zone:'engine',warm:'erg',moves:[
-     m('Zone 2 aerobic','1','25 min','Row 12 / Ski 13','—','Easy flush.'),
-     m('Arm & abs pump: curl + pushdown + hanging leg raise','3','15 / 15 / 15','RPE 7','45s',''),
-   ]},
-  {day:'Sat',label:'Rest / Reassess',zone:'rest',warm:null,moves:[
-     m('Rest — weigh in, retest if fresh','—','—','—','—','Send your Wk1-4 check-in. Confirm September off-dates.',false),
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','5',L('dead',0.7),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
    ]}
  ]},
-{n:5,block:'OVERLOAD',warmNote:'SEPTEMBER OVERLOAD 1/3 — 6 days + optional doubles. Biggest fitness jump of the plan. Eat and sleep like it\'s your job.',sessions:[
-  {day:'Mon',label:'Lower · Squat (heavy) + posterior',zone:'strength',warm:'strength',moves:[
-     m('Back Squat','6','4',L('squat',0.8),'3 min','Overload — extra sets, push load weekly.'),
-     m('Front Squat','4','6','RPE 8-9','2 min',''),
-     m('Romanian Deadlift','4','8','RPE 8-9','2 min',''),
-     m('Bulgarian split squat','4','10 ea','RPE 8','90s',''),
-     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
-     m('Finisher: sandbag carry','3','40 m','50 kg','60s',''),
+{n:2,block:'Block 1 · week 2/3',warmNote:'Target: 75% for 5s (deadlift ~72%). Up from last week — that\'s your overload. If it hits RPE 9 before the reps, hold there; on a cut, holding = winning.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','4','5',L('bench',0.75),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','5',L('press',0.7),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+     m('Conditioning finisher: loaded carries','3','40 m / 30m ea','Farmer + suitcase, heavy','75s','Grip, traps & core + calorie burn.'),
    ]},
-  {day:'Mon',label:'＋PM Engine (optional double)',zone:'engine',warm:'erg',moves:[
-     m('Zone 2 aerobic','1','30 min','Row 15 / Ski 15','—','Optional evening aerobic — free volume in your time off.'),
-     m('Biceps: EZ-bar curl + incline DB curl','4','10 / 12','RPE 8-9','60s','Superset. Control the negative.'),
-   ],opt:true},
-  {day:'Tue',label:'Upper · Press (heavy) + chest + arms',zone:'strength',warm:'strength',moves:[
-     m('Strict Press','6','4',L('press',0.8),'2-3 min','Overload overhead — the event lift.'),
-     m('Bench press','5','5','RPE 8, +load','2-3 min','Chest strength overload.'),
-     m('Weighted pull-up','5','6','Add load','2 min',''),
-     m('Pendlay row','4','6','RPE 8-9','90s',''),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','4','5',L('squat',0.75),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
    ]},
-  {day:'Wed',label:'Engine · Run VO2 + Row + MetCon',zone:'engine',warm:'run',moves:[
-     m('Run intervals','6','3 min / 90s jog','@4:40-4:50/km','incl.','Overload run volume.'),
-     m('Row intervals','6','500 m','@1:50','75s',''),
-     m('MetCon X — full RX for time','1','25 min cap — RECORD','Race pace','—','Compare to Wk2 — should be faster.'),
-     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+     m('Conditioning finisher: loaded carries','3','40 m / 30m ea','Farmer + suitcase, heavy','75s','Grip, traps & core + calorie burn.'),
    ]},
-  {day:'Thu',label:'Lower · Deadlift (heavy) + hypertrophy',zone:'strength',warm:'strength',moves:[
-     m('Deadlift','5','3',L('dead',0.78),'3 min','Overload — build the pull.'),
-     m('Barbell hip thrust','4','8','RPE 9','2 min',''),
-     m('Leg press','4','12','RPE 8','2 min',''),
-     m('Walking lunge (DB)','4','12 ea','RPE 8','90s',''),
-     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
-     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
-   ]},
-  {day:'Thu',label:'＋PM Chest/Arms/Abs pump (optional double)',zone:'strength',warm:'strength',moves:[
-     m('Chest: incline DB press + cable fly','4','12 / 15','RPE 8','60s','2nd weekly chest hit.'),
-     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','75s',''),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
-   ],opt:true},
-  {day:'Fri',label:'Upper · Chest & arms hypertrophy',zone:'strength',warm:'strength',moves:[
-     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
-     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
-     m('Chest: cable fly + weighted dip','4','15 / 10','RPE 8-9','75s','Superset — deep stretch then squeeze.'),
-     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
-     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
-     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
-   ]},
-  {day:'Sat',label:'Engine 2 · Long run-biased + core',zone:'engine',warm:'run',moves:[
-     m('Long Zone 2 run-biased','1','60 min','Run 40 / Row 12 / Ski 8','—','Big aerobic block — your limiter. Steady.'),
-     m('Core circuit (weighted, obliques)','4','12-15','Add load','45s','Abs priority to close the week.'),
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','5',L('dead',0.725),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
    ]}
  ]},
-{n:6,block:'OVERLOAD',warmNote:'SEPTEMBER OVERLOAD 2/3 — push loads and paces past Wk5. Back off a set if bar speed tanks.',sessions:[
-  {day:'Mon',label:'Lower · Squat (heavy) + posterior',zone:'strength',warm:'strength',moves:[
-     m('Back Squat','6','4',L('squat',0.81),'3 min','Overload — extra sets, push load weekly.'),
-     m('Front Squat','4','6','RPE 8-9','2 min',''),
-     m('Romanian Deadlift','4','8','RPE 8-9','2 min',''),
-     m('Bulgarian split squat','4','10 ea','RPE 8','90s',''),
-     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
-     m('Finisher: sandbag carry','3','40 m','50 kg','60s',''),
+{n:3,block:'Block 1 · week 3/3',warmNote:'Target: 78% for 5s (deadlift ~75%). Up from last week — that\'s your overload. If it hits RPE 9 before the reps, hold there; on a cut, holding = winning.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','4','5',L('bench',0.775),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','5',L('press',0.725),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
    ]},
-  {day:'Mon',label:'＋PM Engine (optional double)',zone:'engine',warm:'erg',moves:[
-     m('Zone 2 aerobic','1','30 min','Row 15 / Ski 15','—','Optional evening aerobic — free volume in your time off.'),
-     m('Biceps: weighted chin-ups + hammer curl','4','AMRAP / 12','Add load','75s','Superset. Chin over bar.'),
-   ],opt:true},
-  {day:'Tue',label:'Upper · Press (heavy) + chest + arms',zone:'strength',warm:'strength',moves:[
-     m('Strict Press','6','4',L('press',0.81),'2-3 min','Overload overhead — the event lift.'),
-     m('Bench press','5','5','RPE 8, +load','2-3 min','Chest strength overload.'),
-     m('Weighted pull-up','5','6','Add load','2 min',''),
-     m('Pendlay row','4','6','RPE 8-9','90s',''),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','4','5',L('squat',0.775),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
    ]},
-  {day:'Wed',label:'Engine · Run VO2 + Row + MetCon',zone:'engine',warm:'run',moves:[
-     m('Run intervals','6','3 min / 90s jog','@4:40-4:50/km','incl.','Overload run volume.'),
-     m('Row intervals','6','500 m','@1:50','75s',''),
-     m('MetCon X — full RX for time','1','25 min cap — RECORD','Race pace','—','Compare to Wk2 — should be faster.'),
-     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
    ]},
-  {day:'Thu',label:'Lower · Deadlift (heavy) + hypertrophy',zone:'strength',warm:'strength',moves:[
-     m('Deadlift','5','3',L('dead',0.795),'3 min','Overload — build the pull.'),
-     m('Barbell hip thrust','4','8','RPE 9','2 min',''),
-     m('Leg press','4','12','RPE 8','2 min',''),
-     m('Walking lunge (DB)','4','12 ea','RPE 8','90s',''),
-     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
-     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
-   ]},
-  {day:'Thu',label:'＋PM Chest/Arms/Abs pump (optional double)',zone:'strength',warm:'strength',moves:[
-     m('Chest: incline DB press + cable fly','4','12 / 15','RPE 8','60s','2nd weekly chest hit.'),
-     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','75s',''),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
-   ],opt:true},
-  {day:'Fri',label:'Upper · Chest & arms hypertrophy',zone:'strength',warm:'strength',moves:[
-     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
-     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
-     m('Chest: incline cable fly + deficit push-up','4','15 / AMRAP','RPE 9','75s','Stretch-focused chest burnout.'),
-     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
-     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
-     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
-   ]},
-  {day:'Sat',label:'Engine 2 · Long run-biased + core',zone:'engine',warm:'run',moves:[
-     m('Long Zone 2 run-biased','1','60 min','Run 40 / Row 12 / Ski 8','—','Big aerobic block — your limiter. Steady.'),
-     m('Core circuit (weighted, obliques)','4','12-15','Add load','45s','Abs priority to close the week.'),
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','5',L('dead',0.75),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
    ]}
  ]},
-{n:7,block:'OVERLOAD',warmNote:'SEPTEMBER OVERLOAD 3/3 — peak volume. Grind it out; Wk8 lets you absorb it.',sessions:[
-  {day:'Mon',label:'Lower · Squat (heavy) + posterior',zone:'strength',warm:'strength',moves:[
-     m('Back Squat','6','4',L('squat',0.82),'3 min','Overload — extra sets, push load weekly.'),
-     m('Front Squat','4','6','RPE 8-9','2 min',''),
-     m('Romanian Deadlift','4','8','RPE 8-9','2 min',''),
-     m('Bulgarian split squat','4','10 ea','RPE 8','90s',''),
-     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
-     m('Finisher: sandbag carry','3','40 m','50 kg','60s',''),
+{n:4,block:'Deload (block 1)',deload:true,warmNote:'Deload — load drops to ~65%. Keep it crisp, recover. On a cut this is non-negotiable. Weigh in & send a check-in.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','3','5',L('bench',0.65),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','5',L('press',0.6),'2 min','Light.'),
+     m('Weighted pull-up','3','6','RPE 7','2 min',''),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
    ]},
-  {day:'Mon',label:'＋PM Engine (optional double)',zone:'engine',warm:'erg',moves:[
-     m('Zone 2 aerobic','1','30 min','Row 15 / Ski 15','—','Optional evening aerobic — free volume in your time off.'),
-     m('Biceps: EZ-bar curl + incline DB curl','4','10 / 12','RPE 8-9','60s','Superset. Control the negative.'),
-   ],opt:true},
-  {day:'Tue',label:'Upper · Press (heavy) + chest + arms',zone:'strength',warm:'strength',moves:[
-     m('Strict Press','6','4',L('press',0.82),'2-3 min','Overload overhead — the event lift.'),
-     m('Bench press','5','5','RPE 8, +load','2-3 min','Chest strength overload.'),
-     m('Weighted pull-up','5','6','Add load','2 min',''),
-     m('Pendlay row','4','6','RPE 8-9','90s',''),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','3','5',L('squat',0.65),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','2','8','RPE 7','2 min','Light posterior.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
    ]},
-  {day:'Wed',label:'Engine · Run VO2 + Row + MetCon',zone:'engine',warm:'run',moves:[
-     m('Run intervals','6','3 min / 90s jog','@4:40-4:50/km','incl.','Overload run volume.'),
-     m('Row intervals','6','500 m','@1:50','75s',''),
-     m('MetCon X — full RX for time','1','25 min cap — RECORD','Race pace','—','Compare to Wk2 — should be faster.'),
-     m('Core + obliques: hanging leg raise + Russian twist','3','15 / 20','Hard','45s','Abs finisher.'),
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 8','90s',''),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
    ]},
-  {day:'Thu',label:'Lower · Deadlift (heavy) + hypertrophy',zone:'strength',warm:'strength',moves:[
-     m('Deadlift','5','3',L('dead',0.81),'3 min','Overload — build the pull.'),
-     m('Barbell hip thrust','4','8','RPE 9','2 min',''),
-     m('Leg press','4','12','RPE 8','2 min',''),
-     m('Walking lunge (DB)','4','12 ea','RPE 8','90s',''),
-     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
-     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
-   ]},
-  {day:'Thu',label:'＋PM Chest/Arms/Abs pump (optional double)',zone:'strength',warm:'strength',moves:[
-     m('Chest: incline DB press + cable fly','4','12 / 15','RPE 8','60s','2nd weekly chest hit.'),
-     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','75s',''),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
-   ],opt:true},
-  {day:'Fri',label:'Upper · Chest & arms hypertrophy',zone:'strength',warm:'strength',moves:[
-     m('Incline barbell bench press','4','8','RPE 8, +load','2-3 min','Upper-chest strength — builds the shelf.'),
-     m('Flat DB press','4','10','RPE 8','90s','Chest volume — deep stretch.'),
-     m('Chest: cable fly + weighted dip','4','15 / 10','RPE 8-9','75s','Superset — deep stretch then squeeze.'),
-     m('DB shoulder press','4','10','RPE 8','90s','Overhead volume — delts + event carryover.'),
-     m('Weighted dips + chin-ups','4','10 / AMRAP','Add load','90s','Compound arm builder — chest, tris, bis, back.'),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','4','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
-     m('Finisher: row or ski','1','10 min','Zone 2','—','Keep the aerobic base ticking.'),
-   ]},
-  {day:'Sat',label:'Engine 2 · Long run-biased + core',zone:'engine',warm:'run',moves:[
-     m('Long Zone 2 run-biased','1','60 min','Run 40 / Row 12 / Ski 8','—','Big aerobic block — your limiter. Steady.'),
-     m('Core circuit (weighted, obliques)','4','12-15','Add load','45s','Abs priority to close the week.'),
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','3','5',L('dead',0.63),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat','2','5','RPE 7','2 min','Light squat volume.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
    ]}
  ]},
-{n:8,block:'Deload',warmNote:'Recovery week — cut volume hard so the overload becomes fitness. Spring back by Saturday.',sessions:[
-  {day:'Mon',label:'Lower (light)',zone:'strength',warm:'strength',moves:[
-     m('Back Squat','3','3',L('squat',0.72),'2 min','Fast, submax.'),
-     m('Romanian Deadlift','3','8','RPE 6','2 min',''),
-     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
+{n:5,block:'Block 2 · week 1/3',warmNote:'Target: 78% for 4s (deadlift ~75%). Up from last week — that\'s your overload. If it hits RPE 9 before the reps, hold there; on a cut, holding = winning.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','4','4',L('bench',0.775),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','4',L('press',0.725),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
    ]},
-  {day:'Tue',label:'Upper (light + chest)',zone:'strength',warm:'strength',moves:[
-     m('Strict Press','3','3',L('press',0.72),'2 min',''),
-     m('Bench press','3','6','RPE 6-7','2 min','Light chest.'),
-     m('Weighted pull-up','3','6','Easy','2 min',''),
-     m('Arm superset: EZ curl + rope pushdown','3','12 / 15','RPE 7','45s',''),
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','4','4',L('squat',0.775),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
    ]},
-  {day:'Wed',label:'Engine · easy + strides',zone:'engine',warm:'run',moves:[
-     m('Easy run','1','30 min','Zone 2','—',''),
-     m('Strides','5','20 sec','Smooth','walk back',''),
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
    ]},
-  {day:'Thu',label:'Lower (light)',zone:'strength',warm:'strength',moves:[
-     m('Deadlift','3','3',L('dead',0.72),'2 min',''),
-     m('Barbell hip thrust','3','8','RPE 6','2 min',''),
-     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
-   ]},
-  {day:'Fri',label:'Engine · Zone 2 + pump',zone:'engine',warm:'erg',moves:[
-     m('Zone 2 aerobic','1','25 min','Row 12 / Ski 13','—','Easy.'),
-     m('Arm & abs pump: curl + pushdown + leg raise','3','15 / 15 / 15','RPE 7','45s',''),
-   ]},
-  {day:'Sat',label:'Rest / Reassess',zone:'rest',warm:null,moves:[
-     m('Rest — retest a lift or run if fresh','—','—','—','—','Send check-in. Peak block next.',false),
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','4',L('dead',0.75),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
    ]}
  ]},
-{n:9,block:'Peak',warmNote:'Peak block — lifting goes heavy & event-specific, volume trims, chest/arms/abs maintained.',sessions:[
-  {day:'Mon',label:'Lower · Squat strength (heavy)',zone:'strength',warm:'strength',moves:[
-     m('Back Squat','5','3',L('squat',0.85),'3 min','Heavy triples — event 3RM territory.'),
-     m('Romanian Deadlift','3','6','RPE 8','2 min',''),
-     m('Bulgarian split squat','3','8 ea','RPE 8','90s',''),
-     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+{n:6,block:'Block 2 · week 2/3',warmNote:'Target: 80% for 4s (deadlift ~78%). Up from last week — that\'s your overload. If it hits RPE 9 before the reps, hold there; on a cut, holding = winning.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','4','4',L('bench',0.8),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','4',L('press',0.75),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+     m('Conditioning finisher: loaded carries','3','40 m / 30m ea','Farmer + suitcase, heavy','75s','Grip, traps & core + calorie burn.'),
    ]},
-  {day:'Tue',label:'Upper · Press strength (heavy) + chest',zone:'strength',warm:'strength',moves:[
-     m('Strict Press','5','3',L('press',0.85),'2-3 min','Overhead — event priority now.'),
-     m('Bench press','4','5','RPE 8','2-3 min','Chest kept heavy.'),
-     m('Weighted pull-up','4','5','Heavy','2 min',''),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','3','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','4','4',L('squat',0.8),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
    ]},
-  {day:'Wed',label:'Engine · VO2 + Row',zone:'engine',warm:'run',moves:[
-     m('Run intervals','6','3 min / 90s jog','@4:40/km','incl.','Sharp top end.'),
-     m('Row intervals','4','500 m','@1:48','75s',''),
-     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+     m('Conditioning finisher: loaded carries','3','40 m / 30m ea','Farmer + suitcase, heavy','75s','Grip, traps & core + calorie burn.'),
    ]},
-  {day:'Thu',label:'Lower · Deadlift strength (heavy)',zone:'strength',warm:'strength',moves:[
-     m('Deadlift','4','3',L('dead',0.85),'3 min','Heavy triples — event 5RM lead-in.'),
-     m('Barbell hip thrust','3','8','RPE 8','2 min',''),
-     m('Farmer carry (heavy)','4','40 m','Heavy','90s',''),
-     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
-   ]},
-  {day:'Fri',label:'Upper · Chest & arms (moderate)',zone:'strength',warm:'strength',moves:[
-     m('Incline barbell bench','4','8','RPE 8','2 min','Chest maintenance.'),
-     m('Flat DB press','3','10','RPE 8','90s',''),
-     m('Chest: cable fly + weighted dip','4','15 / 10','RPE 8-9','75s','Superset — deep stretch then squeeze.'),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','3','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
-   ]},
-  {day:'Sat',label:'Engine 2 · Endurance sim',zone:'sim',warm:'run',moves:[
-     m('ENDURANCE sim — run/row swap','1','22 min cap','Swap every 750m — PUSH','—','LOG DISTANCE vs Wk3.'),
-     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
-   ],opt:true}
- ]},
-{n:10,block:'Peak',warmNote:'Max strength + a full dress rehearsal of all three ATHX pieces.',sessions:[
-  {day:'Mon',label:'Strength · EVENT PATTERN (chase PRs)',zone:'strength',warm:'strength',moves:[
-     m('20-min build: 1RM Press','1','1RM','PR attempt','incl.','Exact event order + clock. Plan attempts.'),
-     m('3RM Back Squat','1','3RM','PR attempt','incl.',''),
-     m('5RM Deadlift','1','5RM','PR attempt','incl.','This is close to what you SCORE.'),
-     m('Arm giant set: BB curl + skull crusher + hammer + rope pushdown','3','10/10/12/15','RPE 9','90s','Arms priority — 4 movements straight through.'),
-     m('Weighted core + obliques: decline sit-up + cable woodchop + Pallof press','4','15 / 12 ea / 12 ea','Add load','45s','Woodchop rotates, Pallof anti-rotates — full oblique hit.'),
-   ]},
-  {day:'Tue',label:'Upper · press + chest + arms',zone:'strength',warm:'strength',moves:[
-     m('Push press','4','3','RPE 8','2 min','Overhead power.'),
-     m('Bench press','4','5','RPE 8','2-3 min','Chest maintenance.'),
-     m('Weighted pull-up','4','5','Heavy','2 min','Only pull of the week — don\'t skip.'),
-     m('Chest: incline cable fly + deficit push-up','4','15 / AMRAP','RPE 9','75s','Stretch-focused chest burnout.'),
-     m('Delts: DB lateral raise + rear-delt fly + face pull','4','15 / 15 / 15','RPE 8, strict','45s','3-way — caps + rear delts for the V-taper.'),
-   ]},
-  {day:'Wed',label:'Engine · Threshold→VO2 + Row',zone:'engine',warm:'run',moves:[
-     m('Run intervals','4','5 min / 2 min walk','Threshold→VO2','incl.','Mixed.'),
-     m('Row intervals','4','400 m','@1:48','75s',''),
-     m('Core + obliques: hanging leg raise + cable crunch + weighted side plank','4','12 / 15 / 30s ea','Hard, full ROM','45s','Loaded side plank = obliques. Brace, no swinging.'),
-   ]},
-  {day:'Thu',label:'Lower · Deadlift (heavy) + posterior',zone:'strength',warm:'strength',moves:[
-     m('Deadlift','4','2',L('dead',0.88),'3 min','Near-max doubles.'),
-     m('Barbell hip thrust','3','6','RPE 8','2 min',''),
-     m('Bulgarian split squat','3','8 ea','RPE 8','90s',''),
-     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
-   ]},
-  {day:'Fri',label:'★ FULL EVENT SIMULATION ★',zone:'sim',warm:'strength',moves:[
-     m('STRENGTH block','1','20 min','1RM press / 3RM squat / 5RM DL','→10 min refuel','Real rest windows between all three.'),
-     m('ENDURANCE block','1','22 min cap','Swap every 750m','→recovery',''),
-     m('METCON X block','1','25 min cap','Full RX','—','LOG EVERYTHING. Note where you fade.'),
-   ]},
-  {day:'Sat',label:'Rest / active recovery',zone:'rest',warm:null,moves:[
-     m('Rest or 30-min walk + light arms','—','—','—','—','Earned it.',false),
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','4',L('dead',0.775),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
    ]}
  ]},
-{n:11,block:'Peak',warmNote:'Final sharpen — heavy but low volume, everything fast and crisp.',sessions:[
-  {day:'Mon',label:'Lower · squat (fast)',zone:'strength',warm:'strength',moves:[
-     m('Back Squat','4','2',L('squat',0.85),'3 min','Fast, submax — feel powerful.'),
-     m('Bulgarian split squat','2','8 ea','RPE 7','90s',''),
-     m('Core + obliques: toes-to-bar + hanging oblique raise + ab-wheel','4','10 / 10 ea / 10','RPE 8','45s','Knees to alternating hips hammers the obliques.'),
+{n:7,block:'Block 2 · week 3/3',warmNote:'Target: 82% for 4s (deadlift ~80%). Up from last week — that\'s your overload. If it hits RPE 9 before the reps, hold there; on a cut, holding = winning.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','4','4',L('bench',0.825),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','4',L('press',0.775),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
    ]},
-  {day:'Tue',label:'Upper · press + chest (fast)',zone:'strength',warm:'strength',moves:[
-     m('Strict Press','4','2',L('press',0.85),'2-3 min','Snappy.'),
-     m('Bench press','3','5','RPE 7','2 min','Light chest.'),
-     m('Weighted pull-up','3','5','Moderate','2 min',''),
-     m('Arm blast: curl + skull crusher','3','10 / 10','RPE 7-8','60s','Keep the pump, low fatigue.'),
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','4','4',L('squat',0.825),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
    ]},
-  {day:'Wed',label:'Engine · crisp threshold',zone:'engine',warm:'run',moves:[
-     m('Run intervals','4','3 min / 2 min easy','@5:00/km','incl.','Sharp, not draining.'),
-     m('Biceps: EZ-bar curl + incline DB curl','4','10 / 12','RPE 8-9','60s','Superset. Control the negative.'),
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
    ]},
-  {day:'Thu',label:'Lower · deadlift (fast)',zone:'strength',warm:'strength',moves:[
-     m('Deadlift','3','2',L('dead',0.85),'3 min','Fast doubles — leave it in the tank.'),
-     m('Barbell hip thrust','2','8','RPE 7','2 min',''),
-     m('Calf + tibialis raise','3','15 / 20','RPE 8','45s','Achilles durability at bodyweight + lower-leg shape.'),
-   ]},
-  {day:'Fri',label:'Engine · MetCon primer',zone:'metcon',warm:'erg',moves:[
-     m('2 rounds @80%','2','see below','Prime, don\'t drain','2 min','Ski 20cal / GTOH 15 (20kg) / Sandbag 20m (50kg).'),
-     m('Core + obliques: GHD sit-up + landmine rotation + weighted Russian twist','4','12 / 10 ea / 20','Controlled','45s','Rotational oblique focus — control, don\'t fling.'),
-   ]},
-  {day:'Sat',label:'Rest',zone:'rest',warm:null,moves:[
-     m('Rest','—','—','—','—','Full rest before comp week.',false),
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','4',L('dead',0.8),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
    ]}
  ]},
-{n:12,block:'Taper',warmNote:'Taper — sharpen then rest. Arrive fresh, lean and primed.',sessions:[
-  {day:'Mon',label:'Openers',zone:'strength',warm:'strength',moves:[
-     m('Build to ~85% on each lift','1','1-2 reps','Press / Squat / DL','full','Confirm opening loads. Leave FRESH.'),
-     m('Light arm pump: curl + pushdown','2','12 / 15','Easy','60s','Optional.'),
+{n:8,block:'Deload (block 2)',deload:true,warmNote:'Deload — load drops to ~68%. Keep it crisp, recover. On a cut this is non-negotiable. Weigh in & send a check-in.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','3','4',L('bench',0.675),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','5',L('press',0.625),'2 min','Light.'),
+     m('Weighted pull-up','3','6','RPE 7','2 min',''),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
    ]},
-  {day:'Tue',label:'Shakeout',zone:'engine',warm:'run',moves:[
-     m('Easy run','1','15 min','Zone 2','—',''),
-     m('Strides','4','20 sec','Relaxed','—',''),
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','3','4',L('squat',0.675),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','2','8','RPE 7','2 min','Light posterior.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
    ]},
-  {day:'Wed',label:'Rest + prep',zone:'rest',warm:null,moves:[
-     m('Rest — sort kit, chalk, GF comp food','—','—','Sleep priority','—','',false),
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 8','90s',''),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
    ]},
-  {day:'Thu',label:'Primer (very easy)',zone:'engine',warm:'erg',moves:[
-     m('Very easy mixed','1','12 min','Zone 1-2','—',''),
-     m('Ski bursts','3','15 sec','Sharp, short','full','Stay sharp.'),
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','3','4',L('dead',0.65),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat','2','5','RPE 7','2 min','Light squat volume.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+   ]}
+ ]},
+{n:9,block:'Block 3 · week 1/3',warmNote:'Target: 82% for 3s (deadlift ~80%). Up from last week — that\'s your overload. If it hits RPE 9 before the reps, hold there; on a cut, holding = winning.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','4','3',L('bench',0.825),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','3',L('press',0.775),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
    ]},
-  {day:'Fri',label:'Rest / travel',zone:'rest',warm:null,moves:[
-     m('Rest','—','—','Hydrate, off feet','—','Familiar GF food. Early night.',false),
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','4','3',L('squat',0.825),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
    ]},
-  {day:'Sat',label:'★ COMPETE ★',zone:'sim',warm:null,moves:[
-     m('Execute the plan','—','—','Controlled starts every piece','—','Trust the work. Leave it on the floor.',false),
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
+   ]},
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','3',L('dead',0.8),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+   ]}
+ ]},
+{n:10,block:'Block 3 · week 2/3',warmNote:'Target: 85% for 3s (deadlift ~82%). Up from last week — that\'s your overload. If it hits RPE 9 before the reps, hold there; on a cut, holding = winning.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','4','3',L('bench',0.85),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','3',L('press',0.8),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+     m('Conditioning finisher: loaded carries','3','40 m / 30m ea','Farmer + suitcase, heavy','75s','Grip, traps & core + calorie burn.'),
+   ]},
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','4','3',L('squat',0.85),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+   ]},
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+     m('Conditioning finisher: loaded carries','3','40 m / 30m ea','Farmer + suitcase, heavy','75s','Grip, traps & core + calorie burn.'),
+   ]},
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','3',L('dead',0.825),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+   ]}
+ ]},
+{n:11,block:'Block 3 · week 3/3',warmNote:'Target: 88% for 3s (deadlift ~85%). Up from last week — that\'s your overload. If it hits RPE 9 before the reps, hold there; on a cut, holding = winning.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','4','3',L('bench',0.875),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','3',L('press',0.825),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
+   ]},
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','4','3',L('squat',0.875),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+   ]},
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
+   ]},
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','4','3',L('dead',0.85),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+   ]}
+ ]},
+{n:12,block:'Deload (block 3)',deload:true,warmNote:'Deload — load drops to ~70%. Keep it crisp, recover. On a cut this is non-negotiable. Weigh in & send a check-in.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','3','3',L('bench',0.7),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','5',L('press',0.65),'2 min','Light.'),
+     m('Weighted pull-up','3','6','RPE 7','2 min',''),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+   ]},
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','3','3',L('squat',0.7),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','2','8','RPE 7','2 min','Light posterior.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+   ]},
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 8','90s',''),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+   ]},
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','3','3',L('dead',0.675),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat','2','5','RPE 7','2 min','Light squat volume.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+   ]}
+ ]},
+{n:13,block:'Block 4 · week 1/3',warmNote:'Target: 85% for 3s (deadlift ~82%). Up from last week — that\'s your overload. If it hits RPE 9 before the reps, hold there; on a cut, holding = winning.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','3','3',L('bench',0.85),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','3',L('press',0.8),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
+   ]},
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','3','3',L('squat',0.85),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+   ]},
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
+   ]},
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','3','3',L('dead',0.825),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+   ]}
+ ]},
+{n:14,block:'Block 4 · week 2/3',warmNote:'Target: 88% for 3s (deadlift ~85%). Up from last week — that\'s your overload. If it hits RPE 9 before the reps, hold there; on a cut, holding = winning.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','3','3',L('bench',0.875),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','3',L('press',0.825),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+     m('Conditioning finisher: loaded carries','3','40 m / 30m ea','Farmer + suitcase, heavy','75s','Grip, traps & core + calorie burn.'),
+   ]},
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','3','3',L('squat',0.875),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+   ]},
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+     m('Conditioning finisher: loaded carries','3','40 m / 30m ea','Farmer + suitcase, heavy','75s','Grip, traps & core + calorie burn.'),
+   ]},
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','3','3',L('dead',0.85),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+   ]}
+ ]},
+{n:15,block:'Block 4 · week 3/3',warmNote:'Target: 90% for 3s (deadlift ~88%). Up from last week — that\'s your overload. If it hits RPE 9 before the reps, hold there; on a cut, holding = winning.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','3','3',L('bench',0.9),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','3',L('press',0.85),'2-3 min','Vertical push — %-tracked, climbs weekly.'),
+     m('Weighted pull-up','3','5-8','RPE 8-9','2 min','Vertical pull — balances the press.'),
+     m('Pendlay row','3','6-8','RPE 8','90s','Horizontal pull — mid-back.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
+   ]},
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','3','3',L('squat',0.9),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','3','8','RPE 8','2 min','Posterior chain.'),
+     m('Leg press (or hack squat)','3','10-12','RPE 8-9','2 min','Quad hypertrophy.'),
+     m('Walking lunge (DB)','3','10 ea','RPE 8','90s','Unilateral — even legs.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+   ]},
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 9','90s','Vertical pull + biceps.'),
+     m('Weighted dips','3','8-10','RPE 9-10','90s','Push compound — chest & triceps.'),
+     m('Chest-supported row','3','10-12','RPE 8','90s','Horizontal pull — back thickness.'),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+     m('Conditioning finisher: bike or row intervals','1','10-12 min','8 × 30s hard / 60s easy','—','Low-impact — burns without hurting leg recovery. Helps the cut.'),
+   ]},
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','3','3',L('dead',0.875),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat (or pause squat)','3','6','RPE 8','2-3 min','Squat pattern volume — quads.'),
+     m('Barbell hip thrust','3','8-10','RPE 8','2 min','Glutes — lock out, 1s hold.'),
+     m('Seated leg curl','3','10-12','RPE 9','90s','Hamstrings — hypertrophy & knee health.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+   ]}
+ ]},
+{n:16,block:'Deload (block 4)',deload:true,warmNote:'Deload — load drops to ~70%. Keep it crisp, recover. On a cut this is non-negotiable. Weigh in & send a check-in.',sessions:[
+  {day:'Day 1',label:'Upper · Bench + press strength',zone:'strength',warm:'strength',moves:[
+     m('Bench press','3','3',L('bench',0.7),'3 min','Main press — target shown as kg (%). Beat last non-deload week.'),
+     m('Overhead press','3','5',L('press',0.65),'2 min','Light.'),
+     m('Weighted pull-up','3','6','RPE 7','2 min',''),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
+   ]},
+  {day:'Day 2',label:'Lower · Squat strength',zone:'strength',warm:'strength',moves:[
+     m('Back Squat','3','3',L('squat',0.7),'3-4 min','Main squat — heavy. Brace, controlled down, drive up.'),
+     m('Romanian Deadlift','2','8','RPE 7','2 min','Light posterior.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Weighted core: cable crunch + cable woodchop','3','12 / 12 ea','RPE 9, add load','45s','Heavy abs + rotation.'),
+   ]},
+  {day:'Day 3',label:'Upper · Hypertrophy (push/pull)',zone:'strength',warm:'strength',moves:[
+     m('Incline barbell bench','4','8','RPE 8-9','2-3 min','Horizontal push — chest & upper-chest.'),
+     m('Weighted chin-ups','3','AMRAP','RPE 8','90s',''),
+     m('Upper-back: face pull + rear-delt fly','3','15 / 15','RPE 8-9','45s','Postural balance — keeps the physique even.'),
+     m('Core + obliques: toes-to-bar + landmine rotation','3','10 / 10 ea','RPE 9','45s','Strict, no swing.'),
+   ]},
+  {day:'Day 4',label:'Lower · Deadlift + posterior',zone:'strength',warm:'strength',moves:[
+     m('Deadlift','3','3',L('dead',0.675),'3-4 min','Main pull — heavy. Brace, push the floor away, no rounding.'),
+     m('Front squat','2','5','RPE 7','2 min','Light squat volume.'),
+     m('Standing calf raise (+ drop set)','3','10-12','RPE 9-10','45s','Heavy, pause at bottom, final drop set.'),
+     m('Core + obliques: hanging leg raise + weighted side plank','3','12 / 30s ea','RPE 9, last set to failure','45s','Loaded & controlled. Side plank = obliques.'),
    ]}
  ]}
 ];
 
 /* ============================ STATE ============================ */
-const KEY='athx.v5';
+const KEY='athx.v10';
 let S=load();
 function load(){
   try{const r=localStorage.getItem(KEY); if(r) return JSON.parse(r);}catch(e){}
   // carry over 1RMs, comp date & bodyweight from a previous version (logs reset — sessions changed)
-  let seed=null; try{const o=localStorage.getItem('athx.v4')||localStorage.getItem('athx.v3')||localStorage.getItem('athx.v2'); if(o)seed=JSON.parse(o);}catch(e){}
+  let seed=null; try{const o=localStorage.getItem('athx.v8')||localStorage.getItem('athx.v8')||localStorage.getItem('athx.v9')||localStorage.getItem('athx.v8')||localStorage.getItem('athx.v7')||localStorage.getItem('athx.v6')||localStorage.getItem('athx.v5')||localStorage.getItem('athx.v4')||localStorage.getItem('athx.v3')||localStorage.getItem('athx.v2'); if(o)seed=JSON.parse(o);}catch(e){}
   const start=new Date(); const comp=new Date(start.getTime()+83*864e5);
-  return {rm:(seed&&seed.rm)||{...DEF_RM}, comp:(seed&&seed.comp)||comp.toISOString().slice(0,10),
+  return {rm:{...DEF_RM,...((seed&&seed.rm)||{})}, comp:(seed&&seed.comp)||comp.toISOString().slice(0,10),
           logs:{}, bw:(seed&&seed.bw)||[], curW:1, curD:0, panel:'train'};
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
@@ -1002,7 +1026,7 @@ $('#ciGen').onclick=()=>{
   let out='ATHX WEEKLY CHECK-IN — WEEK '+w+' ('+W.block+(W.deload?' / deload':'')+')\n';
   const last=S.bw[S.bw.length-1];
   out+='Bodyweight: '+(last?last.kg+' kg':'—')+'\n';
-  out+='1RMs on file: Squat '+S.rm.squat+' / DL '+S.rm.dead+' / Press '+S.rm.press+'\n';
+  out+='1RMs on file: Squat '+S.rm.squat+' / Bench '+S.rm.bench+' / DL '+S.rm.dead+' / Press '+S.rm.press+'\n';
   out+='—\nSessions:\n';
   W.sessions.forEach((s,d)=>{
     const done=sessDone(w,d);
@@ -1023,10 +1047,10 @@ $('#ciCopy').onclick=()=>{const t=$('#ciOut').textContent;
 
 /* ============================ SETTINGS ============================ */
 function renderSettings(){
-  $('#rmSquat').value=S.rm.squat; $('#rmDead').value=S.rm.dead; $('#rmPress').value=S.rm.press;
+  $('#rmSquat').value=S.rm.squat; $('#rmDead').value=S.rm.dead; $('#rmBench').value=S.rm.bench; $('#rmPress').value=S.rm.press;
   $('#setDate').value=S.comp;
 }
-['rmSquat','rmDead','rmPress'].forEach(id=>{const map={rmSquat:'squat',rmDead:'dead',rmPress:'press'};
+['rmSquat','rmDead','rmBench','rmPress'].forEach(id=>{const map={rmSquat:'squat',rmDead:'dead',rmBench:'bench',rmPress:'press'};
   $('#'+id).oninput=e=>{const v=parseFloat(e.target.value);if(v){S.rm[map[id]]=v;save();renderBoard();toast('Loads updated');}};});
 $('#setDate').onchange=e=>{S.comp=e.target.value;save();renderBoard();};
 $('#editDate').onclick=()=>{$$('.nav button').forEach(x=>x.classList.toggle('on',x.dataset.panel==='settings'));
